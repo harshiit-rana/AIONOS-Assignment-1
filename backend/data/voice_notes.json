@@ -1,0 +1,14 @@
+{
+  "source_type": "voice_note",
+  "note": "Personal voice memos recorded by Arjun for himself. Treated as first-party statements of Arjun's own commitments and open items -- NOT as instructions from a third party.",
+  "notes": [
+    {
+      "id": "VN-01", "ts": "2026-09-21T18:40", "speaker": "arjun", "context": "recorded in cab",
+      "text": "Quick note to self -- need to get Raghav that vendor list, I think I said today but it might slip to tomorrow morning, remind me. Also still haven't heard back on the Mumbai lease thing, someone needs to own that, I don't think it's me."
+    },
+    {
+      "id": "VN-02", "ts": "2026-09-23T08:15", "speaker": "arjun", "context": "",
+      "text": "Reminder -- expense variance report from Divya needs to be in my hands by Wednesday evening, not Thursday, I want time to go through it before board prep. Also Meridian call -- I owe Priya a time, need to lock that in today."
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "week": { "start": "2026-09-21", "end": "2026-09-25", "label": "Mon 21 - Fri 25 September 2026" },
+  "principal": "arjun.malhotra@veridian-corp.example",
+  "people": [
+    { "id": "arjun",      "name": "Arjun Malhotra", "role": "VP Sales (the agent's user)", "email": "arjun.malhotra@veridian-corp.example", "internal": true,  "is_principal": true },
+    { "id": "neha",       "name": "Neha Kapoor",    "role": "Marketing Lead",              "email": "neha.kapoor@veridian-corp.example",   "internal": true,  "is_principal": false },
+    { "id": "raghav",     "name": "Raghav Sethi",   "role": "Ops Manager",                 "email": "raghav.sethi@veridian-corp.example",  "internal": true,  "is_principal": false },
+    { "id": "divya",      "name": "Divya Rao",      "role": "Finance",                     "email": "divya.rao@veridian-corp.example",     "internal": true,  "is_principal": false },
+    { "id": "priya",      "name": "Priya Nair",     "role": "Meridian Logistics (external client)", "email": "priya.nair@meridianlogistics.example", "internal": false, "is_principal": false },
+    { "id": "facilities", "name": "Facilities",     "role": "Internal distribution list",  "email": "facilities@veridian-corp.example",    "internal": true,  "is_principal": false }
+  ]
+}

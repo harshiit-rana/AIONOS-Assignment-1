@@ -1,0 +1,48 @@
+{
+  "source_type": "calendar",
+  "week": "2026-09-21/2026-09-25",
+  "calendars": {
+    "arjun": [
+      { "id": "CAL-ARJ-01", "date": "2026-09-21", "start": "09:00", "end": "09:35", "event": "Leadership Sync" },
+      { "id": "CAL-ARJ-02", "date": "2026-09-21", "start": "14:00", "end": "14:30", "event": "1:1 with Neha" },
+      { "id": "CAL-ARJ-03", "date": "2026-09-21", "start": "16:00", "end": "17:00", "event": "Blocked" },
+      { "id": "CAL-ARJ-04", "date": "2026-09-22", "start": "11:00", "end": "12:00", "event": "Internal Budget Review" },
+      { "id": "CAL-ARJ-05", "date": "2026-09-22", "start": "15:00", "end": "15:30", "event": "Blocked" },
+      { "id": "CAL-ARJ-06", "date": "2026-09-23", "start": "15:00", "end": "15:30", "event": "Call -- Meridian Logistics" },
+      { "id": "CAL-ARJ-07", "date": "2026-09-23", "start": "18:00", "end": "18:15", "event": "Blocked" },
+      { "id": "CAL-ARJ-08", "date": "2026-09-24", "start": "09:00", "end": "10:00", "event": "Board Prep Session" },
+      { "id": "CAL-ARJ-09", "date": "2026-09-24", "start": "16:00", "end": "17:00", "event": "Hiring Panel -- Sales Associate" },
+      { "id": "CAL-ARJ-10", "date": "2026-09-25", "start": "10:00", "end": "10:30", "event": "Facilities Check-in" },
+      { "id": "CAL-ARJ-11", "date": "2026-09-25", "start": "13:00", "end": "14:00", "event": "Blocked" }
+    ],
+    "neha": [
+      { "id": "CAL-NEH-01", "date": "2026-09-21", "start": "10:00", "end": "11:00", "event": "Blocked" },
+      { "id": "CAL-NEH-02", "date": "2026-09-21", "start": "14:00", "end": "14:30", "event": "1:1 with Arjun" },
+      { "id": "CAL-NEH-03", "date": "2026-09-22", "start": "13:00", "end": "14:00", "event": "Campaign Vendor Call" },
+      { "id": "CAL-NEH-04", "date": "2026-09-23", "start": "10:00", "end": "10:30", "event": "Deck Prep" },
+      { "id": "CAL-NEH-05", "date": "2026-09-23", "start": "13:00", "end": "15:00", "event": "Blocked" },
+      { "id": "CAL-NEH-06", "date": "2026-09-24", "start": "09:30", "end": "10:00", "event": "Deck Review with Arjun" },
+      { "id": "CAL-NEH-07", "date": "2026-09-25", "start": "11:00", "end": "12:00", "event": "Blocked" }
+    ],
+    "raghav": [
+      { "id": "CAL-RAG-01", "date": "2026-09-21", "start": "09:00", "end": "09:35", "event": "Leadership Sync" },
+      { "id": "CAL-RAG-02", "date": "2026-09-21", "start": "13:00", "end": "14:00", "event": "Blocked" },
+      { "id": "CAL-RAG-03", "date": "2026-09-22", "start": "11:00", "end": "12:00", "event": "Internal Budget Review" },
+      { "id": "CAL-RAG-04", "date": "2026-09-22", "start": "15:30", "end": "16:00", "event": "Ops Standup" },
+      { "id": "CAL-RAG-05", "date": "2026-09-23", "start": "09:00", "end": "11:00", "event": "Blocked" },
+      { "id": "CAL-RAG-06", "date": "2026-09-24", "start": "14:00", "end": "15:00", "event": "Blocked" },
+      { "id": "CAL-RAG-07", "date": "2026-09-25", "start": "10:00", "end": "10:30", "event": "Facilities Check-in" },
+      { "id": "CAL-RAG-08", "date": "2026-09-25", "start": "15:00", "end": "16:00", "event": "Blocked" }
+    ],
+    "divya": [
+      { "id": "CAL-DIV-01", "date": "2026-09-21", "start": "14:30", "end": "15:00", "event": "Budget Prep" },
+      { "id": "CAL-DIV-02", "date": "2026-09-21", "start": "16:00", "end": "17:00", "event": "Blocked" },
+      { "id": "CAL-DIV-03", "date": "2026-09-22", "start": "09:00", "end": "09:15", "event": "Quick Call with Arjun" },
+      { "id": "CAL-DIV-04", "date": "2026-09-22", "start": "11:00", "end": "12:00", "event": "Internal Budget Review" },
+      { "id": "CAL-DIV-05", "date": "2026-09-23", "start": "13:00", "end": "14:00", "event": "Blocked" },
+      { "id": "CAL-DIV-06", "date": "2026-09-24", "start": "09:00", "end": "10:00", "event": "Board Prep Session" },
+      { "id": "CAL-DIV-07", "date": "2026-09-24", "start": "14:00", "end": "15:00", "event": "Blocked" },
+      { "id": "CAL-DIV-08", "date": "2026-09-25", "start": "10:00", "end": "11:00", "event": "Blocked" }
+    ]
+  }
+}

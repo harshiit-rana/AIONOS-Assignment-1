@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Executive Productivity Agent</title>
+<script src="/static/vendor/react.js"></script>
+<script src="/static/vendor/react-dom.js"></script>
+<script src="/static/vendor/babel.js"></script>
+<script src="/static/vendor/tailwind.js"></script>
+<style>
+  :root { color-scheme: dark; }
+  body { background:#0a0e14; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  ::-webkit-scrollbar { width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb { background:#1e293b; border-radius:6px; }
+  .fade { animation: fade .25s ease both; }
+  @keyframes fade { from { opacity:0; transform: translateY(4px);} to {opacity:1;transform:none;} }
+</style>
+</head>
+<body class="text-slate-200">
+<div id="root"></div>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const API = "";
+const DAYS = [
+  ["Mon 21", "2026-09-21T18:00"],
+  ["Tue 22", "2026-09-22T18:00"],
+  ["Wed 23", "2026-09-23T09:00"],
+  ["Thu 24", "2026-09-24T17:00"],
+  ["Fri 25", "2026-09-25T17:00"],
+];
+
+const STATUS = {
+  overdue:   { label:"OVERDUE",   cls:"bg-rose-500/15 text-rose-300 ring-rose-500/30" },
+  due_today: { label:"DUE TODAY", cls:"bg-amber-500/15 text-amber-300 ring-amber-500/30" },
+  upcoming:  { label:"UPCOMING",  cls:"bg-sky-500/15 text-sky-300 ring-sky-500/30" },
+  done:      { label:"DONE",      cls:"bg-emerald-500/15 text-emerald-300 ring-emerald-500/30" },
+  no_deadline:{label:"NO DATE",   cls:"bg-slate-500/15 text-slate-300 ring-slate-500/30" },
+};
+const DIRECTION = {
+  mine:       { label:"My action",   cls:"text-indigo-300 bg-indigo-500/10 ring-indigo-500/25" },
+  waiting_on: { label:"Waiting on",  cls:"text-cyan-300 bg-cyan-500/10 ring-cyan-500/25" },
+  unowned:    { label:"Unowned",     cls:"text-fuchsia-300 bg-fuchsia-500/10 ring-fuchsia-500/25" },
+};
+const KIND_ICON = { email:"✉", transcript:"🗣", voice_note:"🎙", calendar:"📅" };
+
+function Pill({ cls, children }) {
+  return <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-wider ring-1 ${cls}`}>{children}</span>;
+}
+
+function Stat({ n, label, tone }) {
+  return (
+    <div className="flex-1 min-w-[88px] rounded-xl bg-slate-900/60 ring-1 ring-slate-800 px-3 py-2.5">
+      <div className={`text-2xl font-semibold tabular-nums ${tone}`}>{n}</div>
+      <div className="text-[11px] uppercase tracking-wide text-slate-500 mt-0.5">{label}</div>
+    </div>
+  );
+}
+
+function Commitment({ c, onOpen }) {
+  const st = STATUS[c.status] || STATUS.upcoming;
+  const dir = DIRECTION[c.direction];
+  return (
+    <button onClick={() => onOpen(c)}
+      className="w-full text-left rounded-xl bg-slate-900/50 hover:bg-slate-900 ring-1 ring-slate-800 hover:ring-slate-700 px-4 py-3 transition fade">
+      <div className="flex items-start gap-3">
+        <div className="flex-1">
+          <div className="flex flex-wrap items-center gap-2 mb-1.5">
+            <Pill cls={st.cls}>{st.label}</Pill>
+            <Pill cls={dir.cls}>{dir.label}</Pill>
+            {c.slip_count > 0 &&
+              <Pill cls="bg-orange-500/10 text-orange-300 ring-orange-500/25">SLIPPED {c.slip_count}×</Pill>}
+            {c.needs_escalation &&
+              <Pill cls="bg-fuchsia-500/10 text-fuchsia-300 ring-fuchsia-500/25">NEEDS OWNER</Pill>}
+          </div>
+          <div className="text-[15px] font-medium text-slate-100 leading-snug">{c.title}</div>
+          <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-slate-400">
+            <span>Owner: <span className={c.owner === "UNCLEAR" ? "text-fuchsia-300 font-medium" : "text-slate-200"}>{c.owner_name}</span></span>
+            {c.due_human && <span>· {c.due_human}</span>}
+            <span>· {c.evidence.length} sources</span>
+            <span>· conf {Math.round(c.confidence * 100)}%</span>
+          </div>
+          {c.ownership_note &&
+            <div className="mt-2 text-[12px] text-fuchsia-200/80 bg-fuchsia-500/5 ring-1 ring-fuchsia-500/20 rounded-lg px-2.5 py-1.5">
+              {c.ownership_note}
+            </div>}
+        </div>
+        <span className="text-slate-600 text-xs mt-1">▸</span>
+      </div>
+    </button>
+  );
+}
+
+function Drawer({ c, onClose }) {
+  if (!c) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60" />
+      <div onClick={e => e.stopPropagation()}
+        className="relative w-full max-w-xl h-full overflow-y-auto bg-[#0d1219] ring-1 ring-slate-800 p-6 fade">
+        <div className="flex justify-between items-start gap-4">
+          <h2 className="text-lg font-semibold text-slate-100">{c.title}</h2>
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-200 text-xl leading-none">×</button>
+        </div>
+        <div className="mt-2 flex flex-wrap gap-2">
+          <Pill cls={(STATUS[c.status]||STATUS.upcoming).cls}>{(STATUS[c.status]||{}).label}</Pill>
+          <Pill cls={DIRECTION[c.direction].cls}>{DIRECTION[c.direction].label}</Pill>
+        </div>
+
+        <dl className="mt-4 grid grid-cols-2 gap-3 text-[13px]">
+          <div><dt className="text-slate-500">Owner</dt><dd className="text-slate-200">{c.owner_name}</dd></div>
+          <div><dt className="text-slate-500">Counterparty</dt><dd className="text-slate-200">{c.counterparty_name || "—"}</dd></div>
+          <div><dt className="text-slate-500">Deadline</dt><dd className="text-slate-200">{c.due_at ? c.due_at.replace("T"," ") : "none stated"}</dd></div>
+          <div><dt className="text-slate-500">From the words</dt><dd className="text-slate-200">“{c.due_phrase || "—"}”</dd></div>
+        </dl>
+
+        <h3 className="mt-6 mb-2 text-[11px] uppercase tracking-wider text-slate-500">How the deadline moved</h3>
+        <ol className="space-y-2">
+          {c.history.map((h, i) => (
+            <li key={i} className="flex gap-3 text-[13px]">
+              <span className="text-slate-600 tabular-nums shrink-0">{h.ts.slice(5,16).replace("T"," ")}</span>
+              <span className="shrink-0 w-[92px] text-slate-400">{h.kind}</span>
+              <span className="text-slate-300">{h.detail}</span>
+            </li>
+          ))}
+          {!c.history.length && <li className="text-slate-500 text-[13px]">No dated events.</li>}
+        </ol>
+
+        <h3 className="mt-6 mb-2 text-[11px] uppercase tracking-wider text-slate-500">
+          Evidence — {c.evidence.length} sources deduplicated into this one item
+        </h3>
+        <div className="space-y-2">
+          {c.evidence.map(e => (
+            <div key={e.source_id} className="rounded-lg bg-slate-900/60 ring-1 ring-slate-800 px-3 py-2">
+              <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                <span>{KIND_ICON[e.source_id.startsWith("EM")?"email":e.source_id.startsWith("TR")?"transcript":e.source_id.startsWith("VN")?"voice_note":"calendar"]}</span>
+                <code className="text-slate-400">{e.source_id}</code>
+                <span className="truncate">{e.label}</span>
+              </div>
+              <p className="mt-1 text-[13px] text-slate-300 leading-snug">“{e.quote}”</p>
+              {e.acts.length > 0 &&
+                <div className="mt-1.5 flex gap-1 flex-wrap">
+                  {e.acts.map(a => <span key={a} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">{a}</span>)}
+                </div>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Ask({ asOf, onOpen }) {
+  const [q, setQ] = useState("");
+  const [log, setLog] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [sugg, setSugg] = useState([]);
+
+  useEffect(() => { fetch(`${API}/api/suggested`).then(r=>r.json()).then(d=>setSugg(d.questions)); }, []);
+
+  const send = async (text) => {
+    const question = (text ?? q).trim();
+    if (!question) return;
+    setBusy(true); setQ("");
+    const res = await fetch(`${API}/api/ask`, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({ question, as_of: asOf })
+    }).then(r=>r.json());
+    setLog(l => [...l, { question, res }]);
+    setBusy(false);
+  };
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {sugg.map(s => (
+          <button key={s} onClick={() => send(s)}
+            className="text-[12px] px-2.5 py-1.5 rounded-lg bg-slate-900 ring-1 ring-slate-800 hover:ring-slate-600 text-slate-300">
+            {s}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-4 mb-4">
+        {log.map((entry, i) => (
+          <div key={i} className="fade">
+            <div className="text-[13px] text-slate-400 mb-1.5">
+              <span className="text-slate-600">You ·</span> {entry.question}
+            </div>
+            <div className="rounded-xl bg-slate-900/60 ring-1 ring-slate-800 px-4 py-3">
+              <div className="flex items-center gap-2 mb-2 text-[10px] uppercase tracking-wider text-slate-500">
+                <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">{entry.res.intent}</span>
+                <span>{entry.res.latency_ms} ms</span>
+                {!entry.res.grounded && <span className="text-amber-400">ungrounded — refused to guess</span>}
+              </div>
+              <p className="text-[14px] text-slate-200 leading-relaxed">{entry.res.answer}</p>
+              {entry.res.citations.length > 0 &&
+                <div className="mt-2.5 flex flex-wrap gap-1 items-center">
+                  <span className="text-[11px] text-slate-500 mr-1">Grounded in:</span>
+                  {entry.res.citations.map(c =>
+                    <code key={c} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">{c}</code>)}
+                </div>}
+              {entry.res.commitments.length > 0 &&
+                <div className="mt-3 space-y-2">
+                  {entry.res.commitments.map(c => <Commitment key={c.id} c={c} onOpen={onOpen} />)}
+                </div>}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex gap-2 sticky bottom-0 bg-[#0a0e14] pt-2">
+        <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()}
+          placeholder="Ask about this week…"
+          className="flex-1 bg-slate-900 ring-1 ring-slate-800 focus:ring-indigo-500/50 outline-none rounded-xl px-4 py-2.5 text-[14px] placeholder:text-slate-600" />
+        <button onClick={()=>send()} disabled={busy}
+          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-[14px] font-medium">
+          {busy ? "…" : "Ask"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Sources() {
+  const [data, setData] = useState(null);
+  const [kind, setKind] = useState("");
+  useEffect(() => {
+    fetch(`${API}/api/sources${kind?`?kind=${kind}`:""}`).then(r=>r.json()).then(setData);
+  }, [kind]);
+  const kinds = ["", "transcript", "email", "voice_note", "calendar"];
+  return (
+    <div>
+      <div className="flex gap-2 mb-4">
+        {kinds.map(k => (
+          <button key={k} onClick={()=>setKind(k)}
+            className={`text-[12px] px-2.5 py-1.5 rounded-lg ring-1 ${kind===k?"bg-indigo-600/20 ring-indigo-500/40 text-indigo-200":"bg-slate-900 ring-slate-800 text-slate-400"}`}>
+            {k === "" ? `All (${data?data.count:""})` : `${KIND_ICON[k]} ${k.replace("_"," ")}`}
+          </button>
+        ))}
+      </div>
+      <div className="space-y-1.5">
+        {data && data.items.map(s => (
+          <div key={s.id} className="rounded-lg bg-slate-900/50 ring-1 ring-slate-800 px-3 py-2 fade">
+            <div className="flex items-center gap-2 text-[11px] text-slate-500">
+              <code className="text-slate-400">{s.id}</code>
+              <span>{KIND_ICON[s.kind]}</span>
+              <span className="truncate">{s.label}</span>
+            </div>
+            <p className="mt-1 text-[13px] text-slate-300">{s.text}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [asOf, setAsOf] = useState("2026-09-23T09:00");
+  const [brief, setBrief] = useState(null);
+  const [tab, setTab] = useState("brief");
+  const [open, setOpen] = useState(null);
+  const [health, setHealth] = useState(null);
+
+  useEffect(() => { fetch(`${API}/api/health`).then(r=>r.json()).then(setHealth); }, []);
+  useEffect(() => {
+    setBrief(null);
+    fetch(`${API}/api/brief?as_of=${encodeURIComponent(asOf)}`).then(r=>r.json()).then(setBrief);
+  }, [asOf]);
+
+  const c = brief?.counts;
+
+  return (
+    <div className="max-w-5xl mx-auto px-5 py-7">
+      <header className="flex flex-wrap items-start justify-between gap-4 mb-6">
+        <div>
+          <h1 className="text-[22px] font-semibold text-slate-50 tracking-tight">Executive Productivity Agent</h1>
+          <p className="text-[13px] text-slate-500 mt-0.5">
+            Arjun Malhotra · VP Sales · week of 21–25 Sep 2026
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-[11px]">
+          {health && (
+            <span className={`px-2 py-1 rounded-lg ring-1 ${health.llm_enabled?"bg-emerald-500/10 text-emerald-300 ring-emerald-500/25":"bg-slate-800 text-slate-400 ring-slate-700"}`}>
+              {health.llm_enabled ? `LLM · ${health.provider}` : "deterministic mode"}
+            </span>
+          )}
+          {brief && <span className="px-2 py-1 rounded-lg bg-slate-800 text-slate-400 ring-1 ring-slate-700">{brief.sources_considered} sources · {brief.latency_ms} ms</span>}
+        </div>
+      </header>
+
+      {/* Time travel */}
+      <div className="mb-5">
+        <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">
+          Replay the week — the agent only sees what had happened by this point
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {DAYS.map(([label, val]) => (
+            <button key={val} onClick={()=>setAsOf(val)}
+              className={`px-3 py-1.5 rounded-lg text-[13px] ring-1 transition ${asOf===val?"bg-indigo-600 text-white ring-indigo-500":"bg-slate-900 text-slate-400 ring-slate-800 hover:ring-slate-600"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {brief && (
+        <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/40 ring-1 ring-slate-800 p-5 mb-5 fade">
+          <div className="text-[11px] uppercase tracking-wider text-slate-500">{brief.as_of_human}</div>
+          <p className="text-[17px] text-slate-100 mt-1.5 font-medium">{brief.headline}</p>
+          <div className="flex flex-wrap gap-2 mt-4">
+            <Stat n={c.overdue}    label="Overdue"    tone="text-rose-400" />
+            <Stat n={c.due_today}  label="Due today"  tone="text-amber-400" />
+            <Stat n={c.waiting_on} label="Waiting on" tone="text-cyan-400" />
+            <Stat n={c.unowned}    label="No owner"   tone="text-fuchsia-400" />
+            <Stat n={c.done}       label="Closed"     tone="text-emerald-400" />
+          </div>
+        </div>
+      )}
+
+      <nav className="flex gap-1 mb-5 border-b border-slate-800">
+        {[["brief","Daily brief"],["ask","Ask"],["sources","Sources"]].map(([k,l]) => (
+          <button key={k} onClick={()=>setTab(k)}
+            className={`px-4 py-2 text-[14px] -mb-px border-b-2 transition ${tab===k?"border-indigo-500 text-slate-100":"border-transparent text-slate-500 hover:text-slate-300"}`}>
+            {l}
+          </button>
+        ))}
+      </nav>
+
+      {tab === "brief" && brief && (
+        <div className="space-y-6">
+          {brief.sections.filter(s=>s.items.length).map(sec => (
+            <section key={sec.key} className="fade">
+              <h2 className="text-[13px] font-semibold text-slate-300">{sec.title}
+                <span className="ml-2 text-slate-600 font-normal">{sec.items.length}</span>
+              </h2>
+              <p className="text-[12px] text-slate-500 mb-2.5">{sec.hint}</p>
+              <div className="space-y-2">
+                {sec.items.map(c => <Commitment key={c.id} c={c} onOpen={setOpen} />)}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
+      {tab === "brief" && !brief && <div className="text-slate-500 text-sm">Running the pipeline…</div>}
+      {tab === "ask" && <Ask asOf={asOf} onOpen={setOpen} />}
+      {tab === "sources" && <Sources />}
+
+      <Drawer c={open} onClose={()=>setOpen(null)} />
+
+      <footer className="mt-12 pt-5 border-t border-slate-800 text-[11px] text-slate-600">
+        Grounded only in the supplied data pack · ownership is never inferred ·
+        <a href="/docs" className="text-slate-500 hover:text-slate-300 ml-1 underline">API docs</a>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

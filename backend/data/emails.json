@@ -1,0 +1,55 @@
+{
+  "source_type": "email",
+  "threads": [
+    {
+      "thread_id": "T1", "subject": "Vendor List",
+      "messages": [
+        { "id": "EM-T1-01", "ts": "2026-09-21T09:50", "from": "raghav", "to": ["arjun"], "body": "Following up from the sync -- can you send the updated vendor list today?" },
+        { "id": "EM-T1-02", "ts": "2026-09-21T17:40", "from": "arjun",  "to": ["raghav"], "body": "Running behind, will send first thing tomorrow morning instead." },
+        { "id": "EM-T1-03", "ts": "2026-09-22T09:15", "from": "raghav", "to": ["arjun"], "body": "No worries, whenever you get a chance today works." },
+        { "id": "EM-T1-04", "ts": "2026-09-22T18:30", "from": "arjun",  "to": ["raghav"], "body": "Sorry, got pulled into board prep -- will send by tomorrow (Wednesday) morning for sure." },
+        { "id": "EM-T1-05", "ts": "2026-09-23T08:45", "from": "raghav", "to": ["arjun"], "body": "Just checking -- still good for this morning?" }
+      ]
+    },
+    {
+      "thread_id": "T2", "subject": "Q3 Campaign Deck",
+      "messages": [
+        { "id": "EM-T2-01", "ts": "2026-09-21T11:00", "from": "neha",  "to": ["arjun"], "body": "Deck's coming together, still targeting Wednesday for your review." },
+        { "id": "EM-T2-02", "ts": "2026-09-22T16:15", "from": "neha",  "to": ["arjun"], "body": "Heads up -- shifting the review to Thursday morning instead of Wednesday, need one more day on the data slides." },
+        { "id": "EM-T2-03", "ts": "2026-09-23T10:00", "from": "arjun", "to": ["neha"],  "body": "Understood, Thursday morning works. What time exactly?" },
+        { "id": "EM-T2-04", "ts": "2026-09-23T10:20", "from": "neha",  "to": ["arjun"], "body": "Let's say 9:30 AM Thursday, before your board prep block." },
+        { "id": "EM-T2-05", "ts": "2026-09-24T08:00", "from": "neha",  "to": ["arjun"], "body": "Deck is ready, attaching the draft ahead of our 9:30 review." }
+      ]
+    },
+    {
+      "thread_id": "T3", "subject": "Call Reschedule",
+      "messages": [
+        { "id": "EM-T3-01", "ts": "2026-09-21T13:00", "from": "priya", "to": ["arjun"], "body": "Our scheduled call this week got bumped from our side -- can you propose a new time? We're flexible Tuesday--Thursday afternoons." },
+        { "id": "EM-T3-02", "ts": "2026-09-22T15:00", "from": "arjun", "to": ["priya"], "body": "Apologies for the delay -- how about Wednesday 3:00 PM?" },
+        { "id": "EM-T3-03", "ts": "2026-09-22T17:45", "from": "priya", "to": ["arjun"], "body": "Wednesday 3 PM works on our end, confirmed." },
+        { "id": "EM-T3-04", "ts": "2026-09-23T13:30", "from": "priya", "to": ["arjun"], "body": "Quick check -- still on for 3 PM today?" },
+        { "id": "EM-T3-05", "ts": "2026-09-23T14:00", "from": "arjun", "to": ["priya"], "body": "Yes, confirmed, see you at 3." }
+      ]
+    },
+    {
+      "thread_id": "T4", "subject": "Expense Variance Report",
+      "messages": [
+        { "id": "EM-T4-01", "ts": "2026-09-21T14:30", "from": "divya", "to": ["arjun"], "body": "Starting on the July variance numbers, targeting Thursday morning for board prep as discussed." },
+        { "id": "EM-T4-02", "ts": "2026-09-22T09:00", "from": "arjun", "to": ["divya"], "body": "Actually, can I get it by Wednesday evening instead? Want time to review before Thursday." },
+        { "id": "EM-T4-03", "ts": "2026-09-22T09:40", "from": "divya", "to": ["arjun"], "body": "Wednesday evening is tight but doable, I'll prioritize it." },
+        { "id": "EM-T4-04", "ts": "2026-09-23T18:00", "from": "divya", "to": ["arjun"], "body": "Report attached, sent as promised." },
+        { "id": "EM-T4-05", "ts": "2026-09-23T18:10", "from": "arjun", "to": ["divya"], "body": "Got it, thank you -- exactly what I needed before tomorrow." }
+      ]
+    },
+    {
+      "thread_id": "T5", "subject": "Mumbai Office Lease Renewal",
+      "messages": [
+        { "id": "EM-T5-01", "ts": "2026-09-21T10:15", "from": "facilities", "to": ["all_staff"], "body": "Reminder: the Mumbai office lease renewal requires an authorized signature by Friday, 25 September." },
+        { "id": "EM-T5-02", "ts": "2026-09-22T11:00", "from": "raghav", "to": ["arjun", "divya"], "body": "Following up from the sync -- has anyone confirmed who's signing off on the Mumbai renewal? Don't think it's been assigned." },
+        { "id": "EM-T5-03", "ts": "2026-09-23T09:30", "from": "divya", "to": ["raghav", "arjun"], "body": "Not on my end -- I believe this typically sits with Facilities directly, not us." },
+        { "id": "EM-T5-04", "ts": "2026-09-24T16:00", "from": "facilities", "to": ["all_staff"], "body": "Second reminder: signature is still pending. Deadline is Friday, 25 September, end of day." },
+        { "id": "EM-T5-05", "ts": "2026-09-24T16:45", "from": "raghav", "to": ["arjun"], "body": "This is now one day out and still unowned -- can you confirm who's handling it?" }
+      ]
+    }
+  ]
+}
