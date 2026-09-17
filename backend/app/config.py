@@ -25,7 +25,9 @@ PROVIDERS = {
     "groq": {
         "key": GROQ_API_KEY,
         "base_url": "https://api.groq.com/openai/v1",
-        "model": os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile"),
+        # Groq retires models regularly -- run `python check_llm.py` to list
+        # what is currently available and switch with GROQ_MODEL in .env.
+        "model": os.getenv("GROQ_MODEL", "openai/gpt-oss-120b"),
         "sdk": "openai",
     },
     "openai": {

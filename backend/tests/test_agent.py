@@ -182,7 +182,17 @@ def test_qa_never_crashes(question):
 
 
 # --- The optional LLM layer must never be able to break the demo -----------
-def test_without_a_key_the_answer_is_deterministic_and_says_so():
+def test_without_a_key_the_answer_is_deterministic_and_says_so(monkeypatch):
+    """Explicitly clear every provider key -- the suite must give the same
+    result on a machine with a key in .env and on a reviewer's without one."""
+    import app.config as cfg
+    monkeypatch.setattr(cfg, "GROQ_API_KEY", "")
+    monkeypatch.setattr(cfg, "OPENAI_API_KEY", "")
+    monkeypatch.setattr(cfg, "ANTHROPIC_API_KEY", "")
+    monkeypatch.setitem(cfg.PROVIDERS["groq"], "key", "")
+    monkeypatch.setitem(cfg.PROVIDERS["openai"], "key", "")
+    monkeypatch.setitem(cfg.PROVIDERS["anthropic"], "key", "")
+
     from app.agent.qa import answer_best
     r = answer_best("What did I promise Raghav?", brief_at(WED), WED)
     assert r["used_llm"] is False

@@ -65,6 +65,15 @@ Scroll the drawer to the timeline.
 Then ask something outside the pack — *"What's our Q4 revenue forecast?"*
 > "It refuses. It only answers from this week's sources."
 
+**If the Groq key is in place**, ask something free-form the rule path can't
+handle — *"I'm about to walk into board prep, what do I actually need to worry
+about?"* — then open **"compare with the deterministic answer"**:
+> "The badge says which path answered. The model phrases it, but it can only
+> select from commitments the resolver already produced — the citations are the
+> same either way. Note the latency too: rules answer in about 5ms, the model
+> in about 1.8 seconds. That's the trade, and it's why the brief itself never
+> waits on a model."
+
 **7 · Under the hood (25s)** — Sources tab, then `/docs`.
 > "Every source is queryable, and it's a real REST API — brief, ask,
 > commitments, sources, and an audit log that records every question with the

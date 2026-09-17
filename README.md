@@ -27,7 +27,20 @@ box. To enable the LLM path, copy `.env.example` to `.env` and add a key
 
 ```bash
 GROQ_API_KEY=gsk_...
+GROQ_MODEL=openai/gpt-oss-120b
 ```
+
+Then verify the live path before relying on it:
+
+```bash
+python backend/check_llm.py
+```
+
+It checks the key loads, the model still exists on the provider (Groq retires
+models regularly — it lists the current ones if yours is gone), that live
+answers cite only real source ids, that the unowned item is *still* refused an
+owner when an LLM phrases the reply, and that a dead key degrades to the
+deterministic answer. Non-zero exit means don't demo with it.
 
 ```bash
 pytest -q          # 27 tests, all mapped to assignment requirements
@@ -234,7 +247,7 @@ latter, both found by testing rather than by reading:
 | `GET` | `/api/sources?kind=&ids=` | Provenance lookup |
 | `GET` | `/api/audit` | Every brief and question, with citations |
 | `GET` | `/api/people` | Directory |
-| `GET` | `/api/health` | Status and active LLM provider |
+| `GET` | `/api/health` | Status, active provider, and exactly what the LLM is used for |
 
 Example:
 
