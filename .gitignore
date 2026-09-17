@@ -9,3 +9,5 @@ env/
 .DS_Store
 *.log
 JD_Product*.pdf
+
+*.pptx
