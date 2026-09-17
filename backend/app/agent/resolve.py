@@ -258,7 +258,7 @@ def resolve_commitments(mentions: list[Mention], as_of: datetime) -> list[Commit
         conf_word = "SETTLED" if conf >= 0.85 else ("PROBABLE" if conf >= 0.6 else "UNSURE")
         # The trail is the owner's own promises, in order. The counterparty's
         # asks are pressure, not deadlines, and would clutter it.
-        own = [m for m in ms if m.due and "COMMIT" in m.acts and m.speaker == owner]
+        own = [m for m in ms if m.due and ({"COMMIT", "RESCHEDULE"} & set(m.acts)) and m.speaker == owner]
         trail = []
         for m in own:
             lbl = f"{m.due.due_at:%a %d %H:%M}"

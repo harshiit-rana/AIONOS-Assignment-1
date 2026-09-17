@@ -1,887 +1,263 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Executive Productivity Agent — Arjun's Promises</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The Standing</title>
+<meta name="description" content="Executive Productivity Agent — what Arjun Malhotra owes, is owed, and what nobody owns." />
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="/static/vendor/react.js"></script>
 <script src="/static/vendor/react-dom.js"></script>
 <script src="/static/vendor/babel.js"></script>
 <style>
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-:root {
-  --paper: oklch(0.984 0.008 85); --paper2: oklch(0.955 0.010 85); --paper3: oklch(0.930 0.012 85);
-  --ink: oklch(0.235 0.016 60); --ink2: oklch(0.455 0.014 60); --ink3: oklch(0.640 0.012 60);
-  --rule: oklch(0.878 0.012 82); --jeop: oklch(0.520 0.150 48); --cool: oklch(0.510 0.085 240);
-  --sel: oklch(0.900 0.060 85);
+*{box-sizing:border-box} html,body{margin:0;padding:0}
+:root{
+  --paper:oklch(0.984 0.008 85);--paper2:oklch(0.955 0.010 85);--paper3:oklch(0.930 0.012 85);
+  --ink:oklch(0.235 0.016 60);--ink2:oklch(0.455 0.014 60);--ink3:oklch(0.640 0.012 60);
+  --rule:oklch(0.878 0.012 82);--jeop:oklch(0.520 0.150 48);--cool:oklch(0.510 0.085 240);
+  --sel:oklch(0.900 0.060 85);--ok:oklch(0.55 0.10 150);
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: oklch(0.172 0.008 70); --paper2: oklch(0.212 0.009 70); --paper3: oklch(0.258 0.010 70);
-    --ink: oklch(0.940 0.010 85); --ink2: oklch(0.745 0.012 85); --ink3: oklch(0.560 0.012 85);
-    --rule: oklch(0.315 0.011 75); --jeop: oklch(0.742 0.135 52); --cool: oklch(0.740 0.075 240);
-    --sel: oklch(0.380 0.060 85);
-  }
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:oklch(0.172 0.008 70);--paper2:oklch(0.212 0.009 70);--paper3:oklch(0.258 0.010 70);
+  --ink:oklch(0.940 0.010 85);--ink2:oklch(0.745 0.012 85);--ink3:oklch(0.560 0.012 85);
+  --rule:oklch(0.315 0.011 75);--jeop:oklch(0.742 0.135 52);--cool:oklch(0.740 0.075 240);
+  --sel:oklch(0.380 0.060 85);--ok:oklch(0.72 0.10 150);
+}}
+:root[data-theme="dark"]{
+  --paper:oklch(0.172 0.008 70);--paper2:oklch(0.212 0.009 70);--paper3:oklch(0.258 0.010 70);
+  --ink:oklch(0.940 0.010 85);--ink2:oklch(0.745 0.012 85);--ink3:oklch(0.560 0.012 85);
+  --rule:oklch(0.315 0.011 75);--jeop:oklch(0.742 0.135 52);--cool:oklch(0.740 0.075 240);
+  --sel:oklch(0.380 0.060 85);--ok:oklch(0.72 0.10 150);
 }
-[data-theme="light"] {
-  --paper: oklch(0.984 0.008 85); --paper2: oklch(0.955 0.010 85); --paper3: oklch(0.930 0.012 85);
-  --ink: oklch(0.235 0.016 60); --ink2: oklch(0.455 0.014 60); --ink3: oklch(0.640 0.012 60);
-  --rule: oklch(0.878 0.012 82); --jeop: oklch(0.520 0.150 48); --cool: oklch(0.510 0.085 240);
-  --sel: oklch(0.900 0.060 85);
-}
-[data-theme="dark"] {
-  --paper: oklch(0.172 0.008 70); --paper2: oklch(0.212 0.009 70); --paper3: oklch(0.258 0.010 70);
-  --ink: oklch(0.940 0.010 85); --ink2: oklch(0.745 0.012 85); --ink3: oklch(0.560 0.012 85);
-  --rule: oklch(0.315 0.011 75); --jeop: oklch(0.742 0.135 52); --cool: oklch(0.740 0.075 240);
-  --sel: oklch(0.380 0.060 85);
-}
-body {
-  background: var(--paper);
-  color: var(--ink);
-  font-family: 'Spectral', Georgia, serif;
-  -webkit-font-smoothing: antialiased;
-}
-button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
-input { font: inherit; color: inherit; }
-a { color: var(--jeop); text-decoration: none; }
-a:hover { text-decoration: underline; }
-::selection { background: var(--sel); }
-.mono { font-family: 'IBM Plex Mono', monospace; }
+body{background:var(--paper);color:var(--ink);font-family:"Spectral",Georgia,"Times New Roman",serif;font-size:16px;line-height:1.5}
+.mono{font-family:"IBM Plex Mono",Consolas,Menlo,monospace;font-size:11.5px;letter-spacing:.02em}
+.app{display:grid;grid-template-columns:184px 1fr;min-height:100vh}
+@media (max-width:820px){.app{grid-template-columns:1fr}.rail{position:static!important;height:auto!important;border-right:0!important;border-bottom:1px solid var(--rule)}.main{padding:16px!important}}
+.rail{position:sticky;top:0;height:100vh;padding:22px 18px;border-right:1px solid var(--rule);display:flex;flex-direction:column;gap:14px}
+.rail h1{font-family:"IBM Plex Mono",monospace;font-size:11.5px;font-weight:500;letter-spacing:.14em;margin:0;text-transform:uppercase}
+.rail p{margin:0;font-size:12.5px;color:var(--ink3);line-height:1.45}
+.days{display:flex;flex-direction:column;border-top:1px solid var(--rule)}
+.day{display:flex;align-items:baseline;justify-content:space-between;padding:10px 4px;border:0;border-bottom:1px solid var(--rule);cursor:pointer;background:none;color:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:11.5px;text-align:left;width:100%}
+.day:hover{color:var(--ink)} .day.on{color:var(--ink);background:var(--paper2)}
+.day.on::before{content:"";display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--jeop);margin-right:8px}
+.heard{margin-top:auto}
+.tbtn{background:none;border:1px solid var(--rule);color:var(--ink3);padding:5px 8px;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em}
+.main{padding:22px 40px 80px 40px;max-width:900px}
+.mast{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap;color:var(--ink3);padding-bottom:16px;border-bottom:1px solid var(--rule)}
+section{padding:26px 0 8px;border-bottom:1px solid var(--rule)}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;gap:20px;flex-wrap:wrap}
+.sec-h b{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+.sec-h span{color:var(--ink3)}
+.sub{color:var(--ink3);font-size:13px;margin:4px 0 0;max-width:560px;line-height:1.5}
+.standing{font-size:27px;line-height:1.3;font-weight:400;margin:14px 0 0;letter-spacing:-.01em}
+.standing div{margin:0 0 6px} .jeop{color:var(--jeop)} .cool{color:var(--cool)}
+.item{margin:18px 0 0;padding:16px 0 16px 18px;border-left:2px solid var(--rule);position:relative}
+.item.jeop{border-left-color:var(--jeop)} .item.cool{border-left-color:var(--cool)}
+.item.unowned{border:1px dashed var(--ink3);padding:16px 18px}
+.lbl{display:flex;gap:14px;flex-wrap:wrap;align-items:baseline;color:var(--ink3)}
+.lbl b{font-weight:500;letter-spacing:.12em}
+.title{font-size:20.5px;line-height:1.32;margin:6px 0 10px;font-weight:400}
+.trail{display:flex;gap:8px;flex-wrap:wrap;align-items:center;color:var(--ink3)}
+.trail s{opacity:.7} .trail u{color:var(--jeop);text-decoration:none;border-bottom:1px solid var(--jeop)}
+.trail .pull{color:var(--cool)}
+.ev{display:flex;gap:10px;align-items:center;margin:10px 0 8px;color:var(--ink2);flex-wrap:wrap}
+.tally{display:inline-flex;gap:2px;align-items:flex-end}
+.tally i{display:inline-block;width:3px;height:13px;background:var(--ink2)}
+.evb{background:none;border:0;padding:0;color:var(--ink2);cursor:pointer;font-family:inherit;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}
+.conf{color:var(--ink3);letter-spacing:.1em} .conf.unsure{color:var(--jeop)}
+.quote{color:var(--ink2);font-size:13.5px;line-height:1.5;margin:0}
+.quote b{font-family:"IBM Plex Mono",monospace;font-size:11px;font-weight:500;color:var(--ink3)}
+.acts{display:flex;gap:16px;flex-wrap:wrap;margin-top:10px;color:var(--ink3)}
+.acts span{cursor:default;letter-spacing:.1em} .acts span:hover{color:var(--ink)}
+.refusal{margin:10px 0 12px;padding:12px 14px;border:1px dashed var(--rule);font-size:15.5px;line-height:1.55;font-style:italic;color:var(--ink)}
+.evlist{margin-top:12px;border-top:1px solid var(--rule)}
+.evrow{padding:10px 0;border-bottom:1px solid var(--rule);font-size:13.5px}
+.evrow .m{color:var(--ink3);display:flex;gap:10px;flex-wrap:wrap} .evrow .m code{color:var(--ink2)}
+.evrow p{margin:4px 0 0;color:var(--ink)} .evrow .a{color:var(--ink3);margin-top:3px}
+.hist{margin-top:10px;display:grid;grid-template-columns:auto auto 1fr;gap:4px 14px;color:var(--ink2);font-size:12.5px}
+.hist .k{color:var(--ink3)}
+.closed{color:var(--ink3);cursor:pointer;background:none;border:0;padding:0;font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.1em}
+.closed:hover{color:var(--ink)}
+.ask{display:flex;gap:12px;align-items:flex-end;border-bottom:1px solid var(--ink2);padding:6px 0;margin-top:14px}
+.ask input{flex:1;background:none;border:0;outline:0;color:var(--ink);font-family:inherit;font-size:19px;min-width:0}
+.ask input::placeholder{color:var(--ink3)}
+.ask button{background:none;border:0;color:var(--ink2);cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.14em;padding:6px 4px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.chip{background:none;border:1px solid var(--rule);color:var(--ink2);padding:5px 10px;cursor:pointer;font-family:"IBM Plex Mono",monospace;font-size:11px}
+.chip:hover{border-color:var(--ink3);color:var(--ink)}
+.ans{margin-top:20px;padding-top:14px;border-top:1px solid var(--rule)}
+.ans .q{color:var(--ink3);font-size:13.5px} .ans .q b{color:var(--ink2);font-weight:400}
+.ans .t{font-size:18px;line-height:1.45;margin:6px 0 8px}
+.ans .cites{display:flex;gap:6px;flex-wrap:wrap;align-items:center;color:var(--ink3)}
+.ans .cites code{border:1px solid var(--rule);padding:1px 5px;color:var(--ink2)}
+.cmp{color:var(--ink3);cursor:pointer;font-size:12.5px;margin-top:8px}
+.cmp p{margin:6px 0 0;padding-left:12px;border-left:1px solid var(--rule);color:var(--ink2);font-size:14px}
+.pathtag{border:1px solid var(--rule);padding:1px 6px;color:var(--ink3)} .pathtag.llm{border-color:var(--ok);color:var(--ok)}
+.foot{margin-top:40px;color:var(--ink3);font-size:12.5px;line-height:1.6;max-width:520px}
+.fade{animation:f .3s ease both}@keyframes f{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
 </style>
 </head>
 <body>
 <div id="root"></div>
-
 <script type="text/babel">
-const { useState, useEffect, useCallback } = React;
-const API = "";
+const {useState,useEffect}=React;
+const DAYS=[["Mon 21","2026-09-21T18:00"],["Tue 22","2026-09-22T18:00"],["Wed 23","2026-09-23T09:00"],["Thu 24","2026-09-24T17:00"],["Fri 25","2026-09-25T17:00"]];
+const fmt=iso=>iso?iso.slice(5,16).replace("T"," "):"";
+const kindOf=id=>id.startsWith("EM")?"email":id.startsWith("TR")?"transcript":id.startsWith("VN")?"voice memo":"calendar";
+const first=n=>(n||"").split(" ")[0];
 
-const PRESETS = [
-  { name: "Mon 9am", iso: "2026-09-21T09:05", dayIdx: 0, frac: 0.09 },
-  { name: "Tue 6pm", iso: "2026-09-22T18:00", dayIdx: 1, frac: 0.35 },
-  { name: "Wed noon", iso: "2026-09-23T12:00", dayIdx: 2, frac: 0.50 },
-  { name: "Thu 5pm", iso: "2026-09-24T17:00", dayIdx: 3, frac: 0.72 },
-  { name: "Fri 5pm", iso: "2026-09-25T17:00", dayIdx: 4, frac: 0.94 }
-];
-
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-
-function App() {
-  const [asOf, setAsOf] = useState("2026-09-23T09:00");
-  const [brief, setBrief] = useState(null);
-  const [health, setHealth] = useState(null);
-  const [theme, setTheme] = useState("dark");
-  const [openItems, setOpenItems] = useState({});
-  const [showDone, setShowDone] = useState(false);
-  const [q, setQ] = useState("");
-  const [asked, setAsked] = useState(null);
-  const [asking, setAsking] = useState(false);
-  const [allSources, setAllSources] = useState([]);
-  const [showSources, setShowSources] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme);
-  }, [theme]);
-
-  useEffect(() => {
-    fetch(`${API}/api/health`).then(r => r.json()).then(setHealth).catch(console.error);
-    fetch(`${API}/api/sources`).then(r => r.json()).then(d => setAllSources(d.items || [])).catch(console.error);
-  }, []);
-
-  useEffect(() => {
-    fetch(`${API}/api/brief?as_of=${encodeURIComponent(asOf)}`)
-      .then(r => r.json())
-      .then(setBrief)
-      .catch(console.error);
-  }, [asOf]);
-
-  const toggleTheme = () => {
-    setTheme(t => (t === "dark" ? "light" : "dark"));
-  };
-
-  const toggleItem = (id) => {
-    setOpenItems(s => ({ ...s, [id]: !s[id] }));
-  };
-
-  const askQuestion = async (text) => {
-    const question = (text || q).trim();
-    if (!question) return;
-    setAsking(true);
-    setQ(question);
-    try {
-      const res = await fetch(`${API}/api/ask`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ question, as_of: asOf })
-      }).then(r => r.json());
-      setAsked({ question, res });
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setAsking(false);
-    }
-  };
-
-  // Find active preset or current day index
-  let activePreset = PRESETS.find(p => p.iso === asOf);
-  let currentFrac = activePreset ? activePreset.frac : 0.5;
-  let currentDayIdx = activePreset ? activePreset.dayIdx : 2;
-
-  // Extract items
-  const activeClaims = [];
-  const closedClaims = [];
-  if (brief && brief.sections) {
-    brief.sections.forEach(sec => {
-      if (sec.key === "done") {
-        closedClaims.push(...sec.items);
-      } else {
-        activeClaims.push(...sec.items);
-      }
-    });
+function label(c){
+  if(c.direction==="unowned")return{tone:"unowned",l:"NO OWNER"};
+  if(c.status==="done")return{tone:"",l:"CLOSED"};
+  if(c.direction==="waiting_on")return{tone:"cool",l:c.status==="overdue"?"YOU ARE BLOCKED":"OWED TO YOU"};
+  if(c.status==="overdue")return{tone:"jeop",l:"PROMISE BROKEN"};
+  if(c.status==="due_today")return{tone:"jeop",l:"DUE TODAY"};
+  return{tone:"",l:"UPCOMING"};
+}
+const THING={vendor_list:"updated vendor list",campaign_deck:"Q3 campaign deck",expense_variance:"July expense variance report",meridian_call:"Meridian call time",mumbai_lease:"Mumbai office lease renewal signature"};
+function sentence(c){
+  const who=first(c.counterparty_name), own=first(c.owner_name), thing=THING[c.id]||c.title.toLowerCase();
+  if(c.direction==="unowned"){const d=c.due_at?new Date(c.due_at).toLocaleDateString("en-GB",{weekday:"long"}):"this week";return`The ${thing} has no owner. It is due ${d}.`;}
+  if(c.direction==="waiting_on"){
+    if(c.status==="done")return`${own} sent you the ${thing}.`;
+    return`${own} owes you the ${thing}.`+(c.status==="overdue"?` You are blocked behind it, and it is late on ${own}'s side, not yours.`:"");
   }
+  if(c.id==="meridian_call")return c.status==="done"?`You reconfirmed the Meridian call with Priya.`:`You owe Priya a confirmed time for the Meridian call.`;
+  if(c.status==="done")return`You sent ${who} the ${thing}.`;
+  return`You owe ${who} the ${thing}.`;
+}
+const acts=c=>c.direction==="unowned"?["TAKE IT","ASSIGN IT TO SOMEONE","TELL FACILITIES NOBODY OWNS IT"]
+  :c.direction==="waiting_on"?[`CHASE ${first(c.owner_name).toUpperCase()}`,"UNBLOCK ME DIFFERENTLY","DROP THE DEPENDENCY"]
+  :["SEND IT NOW",`TELL ${first(c.counterparty_name).toUpperCase()} A NEW DATE`,"IT'S NOT ONE THING"];
 
-  // Sort active claims by jeopardy
-  const rank = { overdue: 0, due_today: 1, unowned: 2, waiting_on: 3, upcoming: 4 };
-  activeClaims.sort((a, b) => {
-    const ra = rank[a.status] !== undefined ? rank[a.status] : (a.direction === 'unowned' ? 2 : 4);
-    const rb = rank[b.status] !== undefined ? rank[b.status] : (b.direction === 'unowned' ? 2 : 4);
-    return ra - rb;
-  });
-
-  const brokenCount = activeClaims.filter(c => c.status === 'overdue').length;
-  const unownedCount = activeClaims.filter(c => c.direction === 'unowned' || c.owner === 'UNCLEAR').length;
-
-  return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      minHeight: '100vh',
-      background: 'var(--paper)',
-      color: 'var(--ink)',
-      width: '100%'
-    }}>
-      {/* Centered layout container that eliminates empty side gaps */}
-      <div style={{
-        display: 'flex',
-        flexDirection: 'row',
-        width: '100%',
-        maxWidth: '1240px',
-        minHeight: '100vh',
-        alignItems: 'stretch'
-      }}>
-        
-        {/* -------------------- SIDEBAR RAIL -------------------- */}
-        <aside style={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '230px',
-          flex: '0 0 230px',
-          padding: '34px 22px 28px 24px',
-          borderRight: '1px solid var(--rule)',
-          position: 'sticky',
-          top: 0,
-          height: '100vh'
-        }}>
-          <div style={{ padding: '0 2px 14px 2px' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink)' }}>
-              Standpoint
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', lineHeight: '1.65', color: 'var(--ink3)', paddingTop: '5px' }}>
-              Select any moment in the week. The page knows only what I had heard by then.
-            </div>
-          </div>
-
-          {/* Vertical Track */}
-          <div style={{ flex: '0 0 auto', padding: '0' }}>
-            <div style={{
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              height: '40vh',
-              minHeight: '260px',
-              background: 'var(--paper2)',
-              border: '1px solid var(--rule)',
-              borderRadius: '2px'
-            }}>
-              {DAYS.map((d, i) => (
-                <div key={d}
-                  onClick={() => {
-                    const p = PRESETS.find(pr => pr.dayIdx === i) || PRESETS[i];
-                    if (p) setAsOf(p.iso);
-                  }}
-                  style={{
-                    position: 'relative',
-                    flex: 1,
-                    borderBottom: i < 4 ? '1px solid var(--rule)' : '0',
-                    padding: '6px 0 0 10px',
-                    cursor: 'pointer'
-                  }}>
-                  <div style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: '9.5px',
-                    letterSpacing: '0.08em',
-                    color: currentDayIdx === i ? 'var(--ink)' : 'var(--ink3)',
-                    fontWeight: currentDayIdx === i ? '600' : 'normal'
-                  }}>
-                    {d}
-                  </div>
-                  <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--rule)', opacity: 0.55 }}></div>
-                </div>
-              ))}
-
-              {/* Red Marker */}
-              <div style={{
-                position: 'absolute',
-                left: '-1px',
-                right: '-1px',
-                top: `${currentFrac * 100}%`,
-                height: '2px',
-                background: 'var(--jeop)',
-                pointerEvents: 'none'
-              }}>
-                <div style={{
-                  position: 'absolute',
-                  top: '-3px',
-                  left: '-4px',
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: 'var(--jeop)'
-                }} />
-              </div>
-            </div>
-          </div>
-
-          {/* Current Stamp & Heard Count */}
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', color: 'var(--ink)', paddingTop: '12px', letterSpacing: '0.01em', whiteSpace: 'nowrap' }}>
-            {brief?.as_of_short || "Wed 23, 09:00"}
-          </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingTop: '2px' }}>
-            {brief?.fragments_heard || brief?.sources_considered || 44} of {brief?.fragments_total || 71} fragments heard
-          </div>
-
-          {/* Preset Quick Buttons */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', paddingTop: '14px' }}>
-            {PRESETS.map(p => (
-              <button key={p.name} onClick={() => setAsOf(p.iso)}
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: '9.5px',
-                  letterSpacing: '0.02em',
-                  padding: '4px 7px',
-                  borderRadius: '2px',
-                  border: `1px solid ${asOf === p.iso ? 'var(--ink3)' : 'var(--rule)'}`,
-                  color: asOf === p.iso ? 'var(--ink)' : 'var(--ink3)'
-                }}>
-                {p.name}
-              </button>
-            ))}
-          </div>
-
-          {/* Health / LLM Status */}
-          <div style={{ paddingTop: '16px' }}>
-            <div style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '9.5px',
-              color: health?.llm_enabled ? 'var(--cool)' : 'var(--ink3)',
-              letterSpacing: '0.04em'
-            }}>
-              {health?.llm_enabled ? `● LLM · ${health.provider}` : "● Deterministic Rules"}
-            </div>
-          </div>
-
-          <div style={{ flex: 1 }}></div>
-
-          {/* Theme Toggle */}
-          <button onClick={toggleTheme} style={{
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '9.5px',
-            letterSpacing: '0.12em',
-            textTransform: 'uppercase',
-            color: 'var(--ink3)',
-            padding: '10px 2px 0 2px',
-            textAlign: 'left'
-          }}>
-            Theme: {theme}
-          </button>
-        </aside>
-
-        {/* -------------------- MAIN CANVAS -------------------- */}
-        <main style={{
-          flex: 1,
-          minWidth: 0,
-          padding: '34px 50px 60px 52px'
-        }}>
-          
-          {/* Header */}
-          <header style={{ paddingBottom: '26px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', paddingBottom: '24px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink3)' }}>
-                Executive Productivity Agent
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.08em', color: 'var(--ink3)' }}>
-                Arjun Malhotra · VP Sales · Week of 21–25 September 2026
-              </div>
-            </div>
-
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap', paddingBottom: '14px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
-                1 &nbsp;The standing
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.04em', color: 'var(--ink3)' }}>
-                as of {brief?.as_of_human || "Wednesday 23 Sep, 09:00"} · the only part you have to read
-              </div>
-            </div>
-
-            {/* The 3 large standing sentences */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {brief?.standing && brief.standing.map((s, i) => {
-                const color = s.tone === 'jeop' ? 'var(--jeop)' : s.tone === 'cool' ? 'var(--cool)' : 'var(--ink)';
-                return (
-                  <div key={i} style={{
-                    fontSize: '28px',
-                    lineHeight: '1.32',
-                    letterSpacing: '-0.012em',
-                    fontWeight: '400',
-                    maxWidth: '34em',
-                    textWrap: 'pretty',
-                    color: color
-                  }}>
-                    {s.text}
-                  </div>
-                );
-              })}
-              {(!brief?.standing || brief.standing.length === 0) && (
-                <div style={{ fontSize: '28px', lineHeight: '1.3', color: 'var(--ink)' }}>
-                  {brief?.headline || "Loading brief..."}
-                </div>
-              )}
-            </div>
-
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.7', color: 'var(--ink3)', paddingTop: '18px', maxWidth: '52em' }}>
-              Everything below this is the argument for those lines. The strip of marks under each item is the evidence standing behind it — one mark per sentence, hollow if I had not heard it yet at this moment in the week.
-            </div>
-          </header>
-
-          {/* Divider */}
-          <div style={{ height: '1px', background: 'var(--rule)', margin: '0' }}></div>
-
-          {/* -------------------- SECTION 2: WHAT YOU OWE -------------------- */}
-          <section style={{ paddingTop: '24px', paddingBottom: '30px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', paddingBottom: '4px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
-                2 &nbsp;What you owe &amp; are blocked on
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.04em', color: 'var(--ink3)' }}>
-                {activeClaims.length} open · {brokenCount} broken · {unownedCount} unowned
-              </div>
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '52em', paddingBottom: '12px' }}>
-              Ordered by jeopardy, not by date. Click the marks or the source count on any item to read the exact sentences it was built from.
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-              {activeClaims.map(c => {
-                const isLate = c.status === 'overdue';
-                const isBlocked = c.direction === 'waiting_on';
-                const isUnowned = c.direction === 'unowned' || c.owner === 'UNCLEAR';
-                const isDueToday = c.status === 'due_today';
-
-                let standingWord = 'upcoming';
-                let mark = 'var(--ink2)';
-                if (isLate) { standingWord = 'promise broken'; mark = 'var(--jeop)'; }
-                else if (isDueToday) { standingWord = 'due now'; mark = 'var(--jeop)'; }
-                else if (isBlocked) { standingWord = 'you are blocked'; mark = 'var(--cool)'; }
-                else if (isUnowned) { standingWord = 'no owner'; mark = 'var(--ink3)'; }
-
-                const isOpen = !!openItems[c.id];
-
-                return (
-                  <article key={c.id} style={{
-                    padding: '28px 0 26px 0',
-                    borderBottom: '1px solid var(--rule)',
-                    ...(isUnowned
-                      ? { margin: '14px 0', padding: '24px 20px', border: '1px dashed var(--ink3)', borderRadius: '3px' }
-                      : { borderLeft: `2px solid ${mark}`, paddingLeft: '20px' })
-                  }}>
-                    {/* Badges & Meta */}
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', flexWrap: 'wrap', paddingBottom: '9px' }}>
-                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: mark }}>
-                        {standingWord}
-                      </div>
-                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink2)', letterSpacing: '0.02em' }}>
-                        {c.due_human || (c.due_at ? c.due_at.replace('T', ' ') : 'no date stated')} {c.lateness ? `· ${c.lateness}` : ''}
-                      </div>
-                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)', letterSpacing: '0.02em' }}>
-                        {isUnowned ? 'needs decision' : c.direction === 'mine' ? `for ${c.counterparty_name || 'counterparty'}` : `from ${c.owner_name}`}
-                      </div>
-                    </div>
-
-                    {/* Headline Line */}
-                    <h2 style={{
-                      margin: 0,
-                      fontWeight: isUnowned ? '400' : '500',
-                      fontSize: '24px',
-                      lineHeight: '1.32',
-                      letterSpacing: '-0.005em',
-                      maxWidth: '40em',
-                      textWrap: 'pretty',
-                      color: 'var(--ink)'
-                    }}>
-                      {c.title}
-                    </h2>
-
-                    {/* Struck-through Deadline Trail */}
-                    {c.deadline_trail && c.deadline_trail.length > 1 && (
-                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '7px', paddingTop: '11px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)' }}>
-                        <span style={{ letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '9.5px' }}>Deadline, as promised:</span>
-                        {c.deadline_trail.map((step, idx) => {
-                          const isLast = idx === c.deadline_trail.length - 1;
-                          return (
-                            <React.Fragment key={idx}>
-                              {idx > 0 && <span>→</span>}
-                              <span style={{
-                                textDecoration: isLast ? 'none' : 'line-through',
-                                color: isLast ? (isLate ? 'var(--jeop)' : 'var(--ink)') : 'var(--ink3)',
-                                fontWeight: isLast ? '600' : 'normal',
-                                borderBottom: isLast ? '1px solid currentColor' : 'none'
-                              }}>
-                                {step}
-                              </span>
-                            </React.Fragment>
-                          );
-                        })}
-                      </div>
-                    )}
-
-                    {/* First-person refusal callout for unowned */}
-                    {isUnowned && c.ownership_note && (
-                      <div style={{
-                        marginTop: '14px',
-                        padding: '12px 14px',
-                        border: '1px dashed var(--ink3)',
-                        borderRadius: '2px',
-                        fontSize: '15px',
-                        lineHeight: '1.55',
-                        color: 'var(--ink2)',
-                        maxWidth: '48em'
-                      }}>
-                        {c.ownership_note}
-                      </div>
-                    )}
-
-                    {/* Evidence ticks & citation count */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', paddingTop: '15px' }}>
-                      <button onClick={() => toggleItem(c.id)} style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '18px', padding: '0 1px' }} title="Show sentences">
-                        {Array.from({ length: c.evidence?.length || 1 }).map((_, i) => (
-                          <span key={i} style={{
-                            display: 'block',
-                            width: '3px',
-                            borderRadius: '1px',
-                            height: '15px',
-                            background: mark,
-                            border: `1px solid ${mark}`
-                          }}></span>
-                        ))}
-                      </button>
-                      <button onClick={() => toggleItem(c.id)} style={{
-                        fontFamily: "'IBM Plex Mono', monospace",
-                        fontSize: '10.5px',
-                        color: 'var(--ink2)',
-                        letterSpacing: '0.02em',
-                        borderBottom: '1px solid var(--rule)'
-                      }}>
-                        {c.evidence?.length || 1} sources deduplicated {isOpen ? '▴ hide' : '▾ expand'}
-                      </button>
-                      <div style={{
-                        fontFamily: "'IBM Plex Mono', monospace",
-                        fontSize: '9.5px',
-                        letterSpacing: '0.14em',
-                        textTransform: 'uppercase',
-                        color: c.confidence_word === 'UNSURE' ? 'var(--jeop)' : 'var(--ink3)'
-                      }}>
-                        {c.confidence_word || 'PROBABLE'}
-                      </div>
-                    </div>
-
-                    {/* Accordion / Expanded Details */}
-                    {isOpen && (
-                      <div style={{ marginTop: '20px', borderTop: '1px solid var(--rule)', paddingTop: '18px' }}>
-                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink3)', paddingBottom: '10px' }}>
-                          Why I think this is one obligation
-                        </div>
-                        <p style={{ margin: '0 0 20px 0', fontSize: '15px', lineHeight: '1.6', color: 'var(--ink2)', maxWidth: '48em', textWrap: 'pretty' }}>
-                          Reconciled across {c.evidence?.length || 0} occurrences. The latest authoritative statement supersedes previous dates, maintaining the chronological audit trail.
-                        </p>
-
-                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink3)', paddingBottom: '12px' }}>
-                          The sentences this was built from
-                        </div>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                          {c.evidence && c.evidence.map((e, idx) => (
-                            <div key={e.source_id} style={{ borderLeft: `1px solid var(--rule)`, padding: '0 0 0 16px' }}>
-                              <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingBottom: '5px' }}>
-                                <span style={{ color: 'var(--ink2)' }}>{String(idx + 1).padStart(2, '0')}</span>
-                                <span style={{ letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)' }}>{e.source_id}</span>
-                                <span>{e.label}</span>
-                                <span>{e.ts?.replace('T', ' ')}</span>
-                              </div>
-                              <div style={{ fontSize: '14.5px', lineHeight: '1.55', color: 'var(--ink)', maxWidth: '48em' }}>
-                                &ldquo;{e.quote}&rdquo;
-                              </div>
-                              {e.acts && e.acts.length > 0 && (
-                                <div style={{ display: 'flex', gap: '4px', paddingTop: '4px' }}>
-                                  {e.acts.map(a => (
-                                    <span key={a} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', padding: '1px 5px', background: 'var(--paper2)', border: '1px solid var(--rule)', color: 'var(--ink3)' }}>
-                                      {a}
-                                    </span>
-                                  ))}
-                                </div>
-                              )}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </article>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Divider */}
-          <div style={{ height: '1px', background: 'var(--rule)', margin: '0' }}></div>
-
-          {/* -------------------- SECTION 3: WHAT CLOSED WITHOUT YOU -------------------- */}
-          {closedClaims.length > 0 && (
-            <section style={{ padding: '24px 0 0 0' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)', paddingBottom: '4px' }}>
-                3 &nbsp;What closed without you
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '52em', paddingBottom: '12px' }}>
-                Things finished but never manually ticked off. I closed them from delivery and confirmation evidence.
-              </div>
-              <button onClick={() => setShowDone(!showDone)} style={{
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: '10px',
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: '10.5px',
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: 'var(--ink3)'
-              }}>
-                <span>Closed itself · {closedClaims.length}</span>
-                <span>{showDone ? '−' : '+'}</span>
-              </button>
-
-              {showDone && (
-                <div style={{ paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                  {closedClaims.map(d => (
-                    <div key={d.id} style={{ borderLeft: '1px solid var(--rule)', padding: '2px 0 2px 16px' }}>
-                      <div style={{ fontSize: '15.5px', lineHeight: '1.45', color: 'var(--ink2)', textDecoration: 'line-through' }}>
-                        {d.title}
-                      </div>
-                      {d.latest_quote && (
-                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.7', color: 'var(--ink3)', paddingTop: '4px' }}>
-                          &ldquo;{d.latest_quote.quote}&rdquo; — {d.latest_quote.who}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </section>
-          )}
-
-          {/* Divider */}
-          <div style={{ height: '1px', background: 'var(--rule)', margin: '34px 0 0 0' }}></div>
-
-          {/* -------------------- SECTION 4: ASK THE RECORD -------------------- */}
-          <section style={{
-            margin: '36px 0 20px 0',
-            padding: '28px 32px',
-            background: 'var(--paper2)',
-            border: '1px solid var(--rule)',
-            borderTop: '3px solid var(--cool)',
-            borderRadius: '6px',
-            boxShadow: '0 4px 24px rgba(0,0,0,0.18)'
-          }}>
-            {/* Header with Badges */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', paddingBottom: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  letterSpacing: '0.14em',
-                  textTransform: 'uppercase',
-                  color: 'var(--cool)'
-                }}>
-                  ✦ &nbsp;4 &nbsp;Ask the record
-                </span>
-                <span style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: '9.5px',
-                  padding: '2px 7px',
-                  borderRadius: '3px',
-                  background: 'rgba(56, 189, 248, 0.12)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
-                  color: 'var(--cool)'
-                }}>
-                  GROQ AI POWERED
-                </span>
-              </div>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)' }}>
-                71 source units · grounded citations
-              </div>
-            </div>
-
-            <p style={{
-              margin: '4px 0 18px 0',
-              fontFamily: "'Spectral', Georgia, serif",
-              fontSize: '15.5px',
-              lineHeight: '1.6',
-              color: 'var(--ink2)',
-              maxWidth: '52em'
-            }}>
-              Ask any question about your week in natural language. The agent grounds every sentence in the exact transcript, email or calendar fragments, or gives an honest refusal.
-            </p>
-
-            {/* Elevated Input Bar */}
-            <form onSubmit={e => { e.preventDefault(); askQuestion(); }}
-              style={{
-                display: 'flex',
-                gap: '12px',
-                alignItems: 'center',
-                background: 'var(--paper)',
-                border: '1px solid var(--rule)',
-                borderRadius: '4px',
-                padding: '6px 8px 6px 16px',
-                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
-              }}>
-              <span style={{ color: 'var(--cool)', fontSize: '16px' }}>✦</span>
-              <input value={q} onChange={e => setQ(e.target.value)}
-                placeholder="Ask e.g. 'What did I promise Raghav?' or 'Who owns the Mumbai lease renewal?'…"
-                style={{
-                  flex: 1,
-                  minWidth: 0,
-                  border: 0,
-                  outline: 'none',
-                  background: 'transparent',
-                  fontFamily: "'Spectral', Georgia, serif",
-                  fontSize: '17px',
-                  color: 'var(--ink)'
-                }} />
-              <button type="submit" disabled={asking}
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  padding: '9px 20px',
-                  background: 'var(--cool)',
-                  color: '#0a0e14',
-                  borderRadius: '3px',
-                  border: 'none',
-                  cursor: 'pointer',
-                  opacity: asking ? 0.6 : 1,
-                  transition: 'opacity 0.2s'
-                }}>
-                {asking ? "Thinking…" : "Ask Agent →"}
-              </button>
-            </form>
-
-            {/* Suggestion Chips */}
-            <div style={{ paddingTop: '16px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink3)', marginBottom: '8px' }}>
-                Suggested Prompts:
-              </div>
-              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {[
-                  "What did I promise Raghav?",
-                  "Who owns the Mumbai lease renewal?",
-                  "What am I waiting on?",
-                  "What changed since Monday?",
-                  "I'm about to walk into board prep — what do I actually need to worry about?"
-                ].map(promptText => (
-                  <button key={promptText} onClick={() => askQuestion(promptText)}
-                    style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: '10.5px',
-                      letterSpacing: '0.02em',
-                      color: 'var(--ink2)',
-                      background: 'var(--paper)',
-                      border: '1px solid var(--rule)',
-                      borderRadius: '3px',
-                      padding: '5px 11px',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                    onMouseOver={e => { e.currentTarget.style.borderColor = 'var(--cool)'; e.currentTarget.style.color = 'var(--ink)'; }}
-                    onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--rule)'; e.currentTarget.style.color = 'var(--ink2)'; }}>
-                    ✦ {promptText}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Answer Box */}
-            {asked && (
-              <div style={{
-                marginTop: '24px',
-                padding: '22px 24px',
-                background: 'var(--paper)',
-                border: '1px solid var(--rule)',
-                borderLeft: `3px solid ${asked.res.grounded ? 'var(--cool)' : 'var(--jeop)'}`,
-                borderRadius: '4px',
-                boxShadow: '0 2px 12px rgba(0,0,0,0.1)'
-              }}>
-                {/* Answer Meta Row */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--rule)', marginBottom: '14px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px' }}>
-                    <span style={{
-                      padding: '2px 7px',
-                      borderRadius: '3px',
-                      fontWeight: '600',
-                      letterSpacing: '0.08em',
-                      textTransform: 'uppercase',
-                      background: asked.res.used_llm ? 'rgba(56, 189, 248, 0.15)' : 'var(--paper2)',
-                      color: asked.res.used_llm ? 'var(--cool)' : 'var(--ink3)',
-                      border: `1px solid ${asked.res.used_llm ? 'rgba(56, 189, 248, 0.4)' : 'var(--rule)'}`
-                    }}>
-                      {asked.res.used_llm ? `● LLM · ${asked.res.path?.split(':')[1] || 'groq'}` : `● DETERMINISTIC RULES`}
-                    </span>
-                    <span style={{ color: 'var(--ink3)' }}>
-                      Latency: <strong style={{ color: 'var(--ink)' }}>{asked.res.latency_ms} ms</strong>
-                    </span>
-                  </div>
-
-                  <div>
-                    {asked.res.grounded ? (
-                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--cool)' }}>
-                        ✓ Grounded in real sources
-                      </span>
-                    ) : (
-                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--jeop)', fontWeight: '600' }}>
-                        ⚠ Ungrounded · Refused to hallucinate
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                {/* Question Echo */}
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', color: 'var(--ink3)', marginBottom: '10px' }}>
-                  You asked: <strong style={{ color: 'var(--ink)' }}>&ldquo;{asked.question}&rdquo;</strong>
-                </div>
-
-                {/* Answer Text */}
-                <p style={{
-                  margin: '0 0 16px 0',
-                  fontSize: '19px',
-                  lineHeight: '1.6',
-                  color: 'var(--ink)',
-                  textWrap: 'pretty',
-                  fontFamily: "'Spectral', Georgia, serif"
-                }}>
-                  {asked.res.answer}
-                </p>
-
-                {/* Citations Badges */}
-                {asked.res.citations && asked.res.citations.length > 0 && (
-                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', paddingTop: '10px', borderTop: '1px solid var(--rule)' }}>
-                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink3)', marginRight: '4px' }}>
-                      Grounded In:
-                    </span>
-                    {asked.res.citations.map(c => (
-                      <span key={c} style={{
-                        fontFamily: "'IBM Plex Mono', monospace",
-                        fontSize: '10px',
-                        padding: '2px 7px',
-                        background: 'var(--paper2)',
-                        border: '1px solid var(--rule)',
-                        color: 'var(--cool)',
-                        borderRadius: '2px'
-                      }}>
-                        {c}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {/* Compare Toggle */}
-                {asked.res.deterministic_answer && (
-                  <details style={{ marginTop: '14px', paddingTop: '10px', borderTop: '1px solid var(--rule)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', color: 'var(--ink3)' }}>
-                    <summary style={{ cursor: 'pointer', color: 'var(--ink2)' }}>
-                      Compare with deterministic baseline answer ▾
-                    </summary>
-                    <p style={{ margin: '8px 0 0 0', padding: '8px 12px', background: 'var(--paper2)', borderLeft: '2px solid var(--rule)', color: 'var(--ink2)', fontStyle: 'italic', borderRadius: '2px' }}>
-                      {asked.res.deterministic_answer}
-                    </p>
-                  </details>
-                )}
-              </div>
-            )}
-          </section>
-
-
-          {/* Divider */}
-          <div style={{ height: '1px', background: 'var(--rule)', margin: '34px 0 0 0' }}></div>
-
-          {/* -------------------- SECTION 5: DATA PACK SOURCES -------------------- */}
-          <section style={{ padding: '26px 0 0 0' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
-                5 &nbsp;Complete data pack ({allSources.length} units)
-              </div>
-              <button onClick={() => setShowSources(!showSources)} style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: '10.5px',
-                color: 'var(--ink3)'
-              }}>
-                {showSources ? '− Hide' : '+ Inspect'}
-              </button>
-            </div>
-
-            {showSources && (
-              <div style={{ paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '420px', overflowY: 'auto' }}>
-                {allSources.map(s => (
-                  <div key={s.id} style={{ borderLeft: '1px solid var(--rule)', padding: '2px 0 2px 12px' }}>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)' }}>
-                      <strong style={{ color: 'var(--ink)' }}>{s.id}</strong> · {s.kind} · {s.ts?.replace('T', ' ')} · {s.speaker || s.label}
-                    </div>
-                    <div style={{ fontSize: '13.5px', color: 'var(--ink2)' }}>{s.text}</div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </section>
-
-          {/* Footer */}
-          <footer style={{
-            marginTop: '50px',
-            paddingTop: '20px',
-            borderTop: '1px solid var(--rule)',
-            fontFamily: "'IBM Plex Mono', monospace",
-            fontSize: '10.5px',
-            lineHeight: '1.7',
-            color: 'var(--ink3)'
-          }}>
-            The agent reads, it does not act. It will not mark your work done, it will not invent an owner, and it will not give you a number for how sure it is. It gives you the sentences and the word it would use itself. · <a href="/docs" target="_blank" style={{ color: 'var(--cool)' }}>Interactive API (/docs)</a>
-          </footer>
-        </main>
-
+function Item({c}){
+  const [open,setOpen]=useState(false);
+  const {tone,l}=label(c);
+  const trail=c.deadline_trail||[];
+  return(
+    <article className={`item ${tone} ${c.direction==="unowned"?"unowned":""} fade`}>
+      <div className="lbl mono">
+        <b className={tone}>{l}</b>
+        {c.lateness&&c.status!=="done"&&<span>{c.status==="overdue"?c.lateness:`due ${fmt(c.due_at)} · ${c.lateness}`}</span>}
+        <span>{c.direction==="unowned"?"owed to nobody":c.direction==="waiting_on"?"owed to you":`for ${c.counterparty_name||""}`}</span>
       </div>
-    </div>
+      <h3 className="title">{sentence(c)}</h3>
+      {c.direction==="unowned"&&c.ownership_note&&<p className="refusal">{c.ownership_note}</p>}
+      {trail.length>0&&c.status!=="done"&&(
+        <div className="trail mono">
+          <span>DEADLINE, AS PROMISED</span>
+          {trail.map((t,i)=>i<trail.length-1?<React.Fragment key={i}><s>{t}</s><span>→</span></React.Fragment>:<u key={i}>{t}</u>)}
+          {c.pulled_earlier&&<span className="pull">· pulled earlier by {first(c.counterparty_name)||"you"}</span>}
+        </div>
+      )}
+      <div className="ev mono">
+        <span className="tally">{c.evidence.map((e,i)=><i key={i}/>)}</span>
+        <button className="evb" onClick={()=>setOpen(o=>!o)}>{c.evidence.length} source{c.evidence.length!==1?"s":""}</button>
+        {c.direction==="unowned"&&<span>· nobody accepts it</span>}
+        <span className={`conf ${c.confidence_word==="UNSURE"?"unsure":""}`}>{c.confidence_word}</span>
+      </div>
+      {c.latest_quote&&<p className="quote"><b>{first(c.latest_quote.who)}, {fmt(c.latest_quote.ts)} —</b> “{c.latest_quote.quote}”</p>}
+      {c.status!=="done"&&<div className="acts mono" title="Drafts for Arjun to review. The agent does not send anything.">{acts(c).map(a=><span key={a}>{a}</span>)}</div>}
+      {open&&(
+        <div className="evlist fade">
+          {c.history.length>0&&<div className="hist mono">
+            {c.history.map((h,i)=><React.Fragment key={i}><span className="k">{fmt(h.ts)}</span><span className="k">{h.kind}</span><span>{h.detail}</span></React.Fragment>)}
+          </div>}
+          {c.evidence.map(e=>(
+            <div className="evrow" key={e.source_id}>
+              <div className="m mono"><code>{e.source_id}</code><span>{kindOf(e.source_id)}</span><span>{e.label}</span></div>
+              <p>“{e.quote}”</p>
+              {e.acts.length>0&&<div className="a mono">{e.acts.join(" · ")}</div>}
+            </div>
+          ))}
+        </div>
+      )}
+    </article>
   );
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+function Ask({asOf}){
+  const [q,setQ]=useState(""),[log,setLog]=useState([]),[busy,setBusy]=useState(false),[sugg,setSugg]=useState([]);
+  useEffect(()=>{fetch("/api/suggested").then(r=>r.json()).then(d=>setSugg(d.questions))},[]);
+  const send=async t=>{const question=(t??q).trim();if(!question)return;setBusy(true);setQ("");
+    const res=await fetch("/api/ask",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({question,as_of:asOf})}).then(r=>r.json());
+    setLog(l=>[{question,res},...l]);setBusy(false);};
+  return(
+    <section>
+      <div className="sec-h"><b>4 &nbsp; Ask the record</b></div>
+      <p className="sub">Ask about your week in plain words. Every answer arrives with the sentences it came from, or with an admission that I cannot answer it.</p>
+      <div className="ask">
+        <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} placeholder="What did I promise Raghav?"/>
+        <button onClick={()=>send()} disabled={busy}>{busy?"…":"ASK"}</button>
+      </div>
+      <div className="chips">{sugg.map(s=><button key={s} className="chip" onClick={()=>send(s)}>{s}</button>)}</div>
+      {log.map((e,i)=>(
+        <div className="ans fade" key={i}>
+          <div className="q mono">YOU · <b>{e.question}</b> &nbsp; <span className={`pathtag ${e.res.used_llm?"llm":""}`}>{e.res.used_llm?`llm · ${e.res.path.split(":")[1]}`:"rules"}</span> &nbsp; {e.res.latency_ms} ms{!e.res.grounded&&<span> · could not answer</span>}</div>
+          <p className="t">{e.res.answer}</p>
+          {e.res.citations.length>0&&<div className="cites mono"><span>FROM</span>{e.res.citations.map(c=><code key={c}>{c}</code>)}</div>}
+          {e.res.deterministic_answer&&<details className="cmp"><summary>compare with the deterministic answer</summary><p>{e.res.deterministic_answer}</p></details>}
+        </div>
+      ))}
+    </section>
+  );
+}
+
+function App(){
+  const [asOf,setAsOf]=useState("2026-09-23T09:00"),[b,setB]=useState(null),[health,setHealth]=useState(null),[showClosed,setShowClosed]=useState(false);
+  const [theme,setTheme]=useState(()=>{try{return localStorage.getItem("theme")||"system"}catch(e){return "system"}});
+  useEffect(()=>{const r=document.documentElement;if(theme==="system")r.removeAttribute("data-theme");else r.setAttribute("data-theme",theme);try{localStorage.setItem("theme",theme)}catch(e){}},[theme]);
+  useEffect(()=>{fetch("/api/health").then(r=>r.json()).then(setHealth)},[]);
+  useEffect(()=>{setB(null);fetch(`/api/brief?as_of=${encodeURIComponent(asOf)}`).then(r=>r.json()).then(setB)},[asOf]);
+  const items=b?b.sections.flatMap(s=>s.items):[];
+  const open=items.filter(c=>c.status!=="done"), closed=items.filter(c=>c.status==="done");
+  const order=c=>c.direction==="unowned"?2:c.status==="overdue"?0:c.status==="due_today"?1:c.direction==="waiting_on"?3:4;
+  open.sort((a,b)=>order(a)-order(b));
+  const broken=open.filter(c=>c.status==="overdue"&&c.direction==="mine").length, unowned=open.filter(c=>c.direction==="unowned").length;
+  return(
+    <div className="app">
+      <aside className="rail">
+        <h1>Standpoint</h1>
+        <p>Stand at any moment in the week. The page then knows only what I had heard by then.</p>
+        <div className="days">{DAYS.map(([l,v])=><button key={v} className={`day ${asOf===v?"on":""}`} onClick={()=>setAsOf(v)}>{l}<span>{v.slice(11)}</span></button>)}</div>
+        <div className="heard">
+          {b&&<p className="mono" style={{color:"var(--ink)"}}>{b.as_of_short}</p>}
+          {b&&<p className="mono">{b.fragments_heard} of {b.fragments_total} fragments heard</p>}
+          {health&&<p className="mono" style={{marginTop:6}}>{health.llm_enabled?`llm · ${health.provider} · answers only`:"deterministic"}</p>}
+          <div style={{display:"flex",gap:6,marginTop:12}}>{["system","light","dark"].map(t=><button key={t} className="tbtn" style={{color:theme===t?"var(--ink)":undefined,borderColor:theme===t?"var(--ink2)":undefined}} onClick={()=>setTheme(t)}>{t.toUpperCase()}</button>)}</div>
+        </div>
+      </aside>
+      <main className="main">
+        <div className="mast mono"><span>EXECUTIVE PRODUCTIVITY AGENT</span><span>{b?`${b.fragments_total} fragments · 1 transcript · 4 calendars · 25 emails · 2 voice memos`:""}</span></div>
+
+        <section>
+          <div className="sec-h"><b>1 &nbsp; The standing</b><span className="mono">as of {b?b.as_of_short:"…"} · the only part you have to read</span></div>
+          {b?<div className="standing fade">{b.standing.map((l,i)=><div key={i} className={l.tone}>{l.text}</div>)}</div>:<div className="standing" style={{color:"var(--ink3)"}}>Reading the week…</div>}
+          <p className="sub" style={{marginTop:14}}>Everything below is the argument for those lines. The marks under each item are the evidence standing behind it — one mark per source. Nothing here is hidden from you; some of it is just quiet.</p>
+        </section>
+
+        <section>
+          <div className="sec-h"><b>2 &nbsp; What you owe, and what is owed</b><span className="mono">{open.length} open · {broken} broken · {unowned} unowned</span></div>
+          <p className="sub">Ordered by jeopardy, not by date. Click the source count on any item to read the exact sentences it was built from.</p>
+          {open.map(c=><Item key={c.id} c={c}/>)}
+        </section>
+
+        <section>
+          <div className="sec-h"><b>3 &nbsp; What closed without you</b></div>
+          <p className="sub">Things that finished because they were actually delivered or confirmed. I closed them from the record.</p>
+          <div style={{marginTop:12}}><button className="closed" onClick={()=>setShowClosed(s=>!s)}>CLOSED ITSELF · {closed.length} &nbsp; {showClosed?"−":"+"}</button></div>
+          {showClosed&&closed.map(c=><Item key={c.id} c={c}/>)}
+        </section>
+
+        <Ask asOf={asOf}/>
+
+        <p className="foot mono">The agent reads, it does not act. It will not mark your work done, it will not invent an owner, and it will not give you a number for how sure it is. It gives you the sentences and the word it would use itself. · <a href="/docs" style={{color:"inherit"}}>API</a></p>
+      </main>
+    </div>
+  );
+}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
 </script>
 </body>
 </html>
