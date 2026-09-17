@@ -32,7 +32,7 @@ def run():
         # Beat 1: Intro — Executive Productivity Agent header & overview (18s)
         print("Beat 1: Overview & Intro (18s)...")
         page.goto("http://127.0.0.1:8000/")
-        page.wait_for_selector("text=Executive Productivity Agent")
+        page.wait_for_selector("text=THE STANDING")
         time.sleep(18)
         
         # Beat 2: The Standing — 3 core lines & summary counts (25s)
@@ -44,7 +44,7 @@ def run():
         print("Beat 3: Dedup & Vendor List (40s)...")
         smooth_scroll(page, 310)
         time.sleep(4)
-        btn = page.query_selector("button:has-text('7 sources deduplicated')")
+        btn = page.query_selector("article.jeop button.evb")
         if btn:
             btn.click()
             time.sleep(1)
@@ -55,7 +55,7 @@ def run():
         print("Beat 4: Time travel to Thursday (28s)...")
         smooth_scroll(page, 0)
         time.sleep(2)
-        thu_btn = page.query_selector("button:has-text('Thu 5pm')")
+        thu_btn = page.query_selector("button.day:has-text('Thu 24')")
         if thu_btn:
             thu_btn.click()
         time.sleep(4)
@@ -66,7 +66,7 @@ def run():
         print("Beat 5: Mumbai lease refusal (35s)...")
         smooth_scroll(page, 440)
         time.sleep(3)
-        lease_btn = page.query_selector("button:has-text('6 sources deduplicated')")
+        lease_btn = page.query_selector("article.unowned button.evb")
         if lease_btn:
             lease_btn.click()
             time.sleep(1)
@@ -85,7 +85,7 @@ def run():
         time.sleep(14)
         
         # Compare toggle
-        compare = page.query_selector("summary:has-text('Compare with deterministic baseline answer')")
+        compare = page.query_selector("summary:has-text('compare with the deterministic answer')")
         if compare:
             compare.click()
         time.sleep(8)
@@ -100,7 +100,7 @@ def run():
         print("Beat 7: Inspect Data Pack & API docs (25s)...")
         smooth_scroll(page, 1250)
         time.sleep(3)
-        inspect_btn = page.query_selector("button:has-text('+ Inspect')")
+        inspect_btn = page.query_selector("button.closed")
         if inspect_btn:
             inspect_btn.click()
         time.sleep(7)
@@ -108,7 +108,7 @@ def run():
         # Open /docs
         print("Opening API Swagger docs...")
         page.goto("http://127.0.0.1:8000/docs")
-        page.wait_for_selector("text=Executive Productivity Agent -- REST API")
+        page.wait_for_selector("text=Executive Productivity Agent")
         time.sleep(15)
         
         print("Closing page to finalize video...")
