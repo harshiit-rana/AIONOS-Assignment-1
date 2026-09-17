@@ -3,27 +3,74 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Executive Productivity Agent</title>
+<title>Executive Productivity Agent — Arjun Malhotra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="/static/vendor/react.js"></script>
 <script src="/static/vendor/react-dom.js"></script>
 <script src="/static/vendor/babel.js"></script>
 <script src="/static/vendor/tailwind.js"></script>
 <style>
-  :root { color-scheme: dark; }
-  body { background:#0a0e14; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
-  ::-webkit-scrollbar { width:10px; height:10px; }
-  ::-webkit-scrollbar-thumb { background:#1e293b; border-radius:6px; }
-  .fade { animation: fade .25s ease both; }
-  @keyframes fade { from { opacity:0; transform: translateY(4px);} to {opacity:1;transform:none;} }
+  :root {
+    --paper: #0a0e14;
+    --paper-card: #111722;
+    --paper-card2: #161f2e;
+    --ink: #e8eef6;
+    --ink-muted: #8a9ab0;
+    --ink-dim: #64748b;
+    --rule: #1e293b;
+    --jeop: #f43f5e;
+    --amber: #f59e0b;
+    --cool: #38bdf8;
+    --emerald: #34d399;
+    --fuchsia: #e879f9;
+    --indigo: #818cf8;
+  }
+  [data-theme="light"] {
+    --paper: #f9f8f5;
+    --paper-card: #ffffff;
+    --paper-card2: #f1ede4;
+    --ink: #191e24;
+    --ink-muted: #4b5563;
+    --ink-dim: #9ca3af;
+    --rule: #e5dfd5;
+    --jeop: #e11d48;
+    --amber: #d97706;
+    --cool: #0284c7;
+    --emerald: #059669;
+    --fuchsia: #c026d3;
+    --indigo: #4f46e5;
+  }
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: 'Spectral', Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  .mono { font-family: 'IBM Plex Mono', Consolas, monospace; }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 4px; }
+  .fade { animation: fadeIn .25s ease both; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+  .tally-tick {
+    display: inline-block;
+    width: 2px;
+    height: 12px;
+    background-color: var(--indigo);
+    margin-right: 2px;
+    border-radius: 1px;
+  }
 </style>
 </head>
-<body class="text-slate-200">
+<body>
 <div id="root"></div>
 
 <script type="text/babel">
 const { useState, useEffect, useCallback } = React;
-
 const API = "";
+
 const DAYS = [
   ["Mon 21", "2026-09-21T18:00"],
   ["Tue 22", "2026-09-22T18:00"],
@@ -32,339 +79,633 @@ const DAYS = [
   ["Fri 25", "2026-09-25T17:00"],
 ];
 
-const STATUS = {
-  overdue:   { label:"OVERDUE",   cls:"bg-rose-500/15 text-rose-300 ring-rose-500/30" },
-  due_today: { label:"DUE TODAY", cls:"bg-amber-500/15 text-amber-300 ring-amber-500/30" },
-  upcoming:  { label:"UPCOMING",  cls:"bg-sky-500/15 text-sky-300 ring-sky-500/30" },
-  done:      { label:"DONE",      cls:"bg-emerald-500/15 text-emerald-300 ring-emerald-500/30" },
-  no_deadline:{label:"NO DATE",   cls:"bg-slate-500/15 text-slate-300 ring-slate-500/30" },
-};
-const DIRECTION = {
-  mine:       { label:"My action",   cls:"text-indigo-300 bg-indigo-500/10 ring-indigo-500/25" },
-  waiting_on: { label:"Waiting on",  cls:"text-cyan-300 bg-cyan-500/10 ring-cyan-500/25" },
-  unowned:    { label:"Unowned",     cls:"text-fuchsia-300 bg-fuchsia-500/10 ring-fuchsia-500/25" },
-};
-const KIND_ICON = { email:"✉", transcript:"🗣", voice_note:"🎙", calendar:"📅" };
+const KIND_ICON = { email: "✉", transcript: "🗣", voice_note: "🎙", calendar: "📅" };
 
-function Pill({ cls, children }) {
-  return <span className={`px-2 py-0.5 rounded-md text-[10px] font-semibold tracking-wider ring-1 ${cls}`}>{children}</span>;
-}
-
-function Stat({ n, label, tone }) {
+function ThemeToggle({ theme, onToggle }) {
   return (
-    <div className="flex-1 min-w-[88px] rounded-xl bg-slate-900/60 ring-1 ring-slate-800 px-3 py-2.5">
-      <div className={`text-2xl font-semibold tabular-nums ${tone}`}>{n}</div>
-      <div className="text-[11px] uppercase tracking-wide text-slate-500 mt-0.5">{label}</div>
-    </div>
-  );
-}
-
-function Commitment({ c, onOpen }) {
-  const st = STATUS[c.status] || STATUS.upcoming;
-  const dir = DIRECTION[c.direction];
-  return (
-    <button onClick={() => onOpen(c)}
-      className="w-full text-left rounded-xl bg-slate-900/50 hover:bg-slate-900 ring-1 ring-slate-800 hover:ring-slate-700 px-4 py-3 transition fade">
-      <div className="flex items-start gap-3">
-        <div className="flex-1">
-          <div className="flex flex-wrap items-center gap-2 mb-1.5">
-            <Pill cls={st.cls}>{st.label}</Pill>
-            <Pill cls={dir.cls}>{dir.label}</Pill>
-            {c.slip_count > 0 &&
-              <Pill cls="bg-orange-500/10 text-orange-300 ring-orange-500/25">SLIPPED {c.slip_count}×</Pill>}
-            {c.needs_escalation &&
-              <Pill cls="bg-fuchsia-500/10 text-fuchsia-300 ring-fuchsia-500/25">NEEDS OWNER</Pill>}
-          </div>
-          <div className="text-[15px] font-medium text-slate-100 leading-snug">{c.title}</div>
-          <div className="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-[12px] text-slate-400">
-            <span>Owner: <span className={c.owner === "UNCLEAR" ? "text-fuchsia-300 font-medium" : "text-slate-200"}>{c.owner_name}</span></span>
-            {c.due_human && <span>· {c.due_human}</span>}
-            <span>· {c.evidence.length} sources</span>
-            <span>· conf {Math.round(c.confidence * 100)}%</span>
-          </div>
-          {c.ownership_note &&
-            <div className="mt-2 text-[12px] text-fuchsia-200/80 bg-fuchsia-500/5 ring-1 ring-fuchsia-500/20 rounded-lg px-2.5 py-1.5">
-              {c.ownership_note}
-            </div>}
-        </div>
-        <span className="text-slate-600 text-xs mt-1">▸</span>
-      </div>
+    <button onClick={onToggle}
+      className="mono text-[11px] uppercase tracking-wider px-2.5 py-1 rounded border transition"
+      style={{ borderColor: 'var(--rule)', color: 'var(--ink-muted)' }}>
+      {theme === "dark" ? "☼ Light Paper" : "☾ Dark Ink"}
     </button>
   );
 }
 
-function Drawer({ c, onClose }) {
-  if (!c) return null;
+function StandingBanner({ standing, asOfHuman, counts, headline, heard, total }) {
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
-      <div className="absolute inset-0 bg-black/60" />
-      <div onClick={e => e.stopPropagation()}
-        className="relative w-full max-w-xl h-full overflow-y-auto bg-[#0d1219] ring-1 ring-slate-800 p-6 fade">
-        <div className="flex justify-between items-start gap-4">
-          <h2 className="text-lg font-semibold text-slate-100">{c.title}</h2>
-          <button onClick={onClose} className="text-slate-500 hover:text-slate-200 text-xl leading-none">×</button>
+    <div className="border rounded-2xl p-6 mb-8 transition fade"
+      style={{ backgroundColor: 'var(--paper-card)', borderColor: 'var(--rule)' }}>
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
+        <div className="mono text-[11px] uppercase tracking-widest" style={{ color: 'var(--indigo)' }}>
+          1 &nbsp;The Standing &middot; as of {asOfHuman}
         </div>
-        <div className="mt-2 flex flex-wrap gap-2">
-          <Pill cls={(STATUS[c.status]||STATUS.upcoming).cls}>{(STATUS[c.status]||{}).label}</Pill>
-          <Pill cls={DIRECTION[c.direction].cls}>{DIRECTION[c.direction].label}</Pill>
+        <div className="mono text-[11px]" style={{ color: 'var(--ink-dim)' }}>
+          the only part you have to read &middot; {heard || 41} of {total || 71} fragments heard
         </div>
+      </div>
 
-        <dl className="mt-4 grid grid-cols-2 gap-3 text-[13px]">
-          <div><dt className="text-slate-500">Owner</dt><dd className="text-slate-200">{c.owner_name}</dd></div>
-          <div><dt className="text-slate-500">Counterparty</dt><dd className="text-slate-200">{c.counterparty_name || "—"}</dd></div>
-          <div><dt className="text-slate-500">Deadline</dt><dd className="text-slate-200">{c.due_at ? c.due_at.replace("T"," ") : "none stated"}</dd></div>
-          <div><dt className="text-slate-500">From the words</dt><dd className="text-slate-200">“{c.due_phrase || "—"}”</dd></div>
-        </dl>
-
-        <h3 className="mt-6 mb-2 text-[11px] uppercase tracking-wider text-slate-500">How the deadline moved</h3>
-        <ol className="space-y-2">
-          {c.history.map((h, i) => (
-            <li key={i} className="flex gap-3 text-[13px]">
-              <span className="text-slate-600 tabular-nums shrink-0">{h.ts.slice(5,16).replace("T"," ")}</span>
-              <span className="shrink-0 w-[92px] text-slate-400">{h.kind}</span>
-              <span className="text-slate-300">{h.detail}</span>
-            </li>
-          ))}
-          {!c.history.length && <li className="text-slate-500 text-[13px]">No dated events.</li>}
-        </ol>
-
-        <h3 className="mt-6 mb-2 text-[11px] uppercase tracking-wider text-slate-500">
-          Evidence — {c.evidence.length} sources deduplicated into this one item
-        </h3>
-        <div className="space-y-2">
-          {c.evidence.map(e => (
-            <div key={e.source_id} className="rounded-lg bg-slate-900/60 ring-1 ring-slate-800 px-3 py-2">
-              <div className="flex items-center gap-2 text-[11px] text-slate-500">
-                <span>{KIND_ICON[e.source_id.startsWith("EM")?"email":e.source_id.startsWith("TR")?"transcript":e.source_id.startsWith("VN")?"voice_note":"calendar"]}</span>
-                <code className="text-slate-400">{e.source_id}</code>
-                <span className="truncate">{e.label}</span>
+      <div className="space-y-2 mb-6">
+        {standing && standing.length > 0 ? (
+          standing.map((s, idx) => {
+            let color = 'var(--ink)';
+            let dot = 'bg-slate-400';
+            if (s.tone === 'jeop') { color = 'var(--jeop)'; dot = 'bg-rose-500'; }
+            else if (s.tone === 'cool') { color = 'var(--cool)'; dot = 'bg-sky-500'; }
+            else if (s.tone === 'amber') { color = 'var(--amber)'; dot = 'bg-amber-500'; }
+            return (
+              <div key={idx} className="text-[20px] md:text-[23px] font-medium leading-snug flex items-baseline gap-3"
+                style={{ color }}>
+                <span className={`inline-block w-2 h-2 rounded-full mt-1 shrink-0 ${dot}`}></span>
+                <span>{s.text}</span>
               </div>
-              <p className="mt-1 text-[13px] text-slate-300 leading-snug">“{e.quote}”</p>
-              {e.acts.length > 0 &&
-                <div className="mt-1.5 flex gap-1 flex-wrap">
-                  {e.acts.map(a => <span key={a} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">{a}</span>)}
-                </div>}
-            </div>
-          ))}
-        </div>
+            );
+          })
+        ) : (
+          <p className="text-[22px] font-medium leading-snug" style={{ color: 'var(--ink)' }}>
+            {headline}
+          </p>
+        )}
+      </div>
+
+      <div className="mono text-[11.5px] border-t pt-4 flex flex-wrap gap-x-6 gap-y-2"
+        style={{ borderColor: 'var(--rule)', color: 'var(--ink-muted)' }}>
+        <div><span className="font-semibold" style={{ color: counts?.overdue ? 'var(--jeop)' : 'var(--ink-dim)' }}>{counts?.overdue || 0}</span> overdue</div>
+        <div><span className="font-semibold" style={{ color: counts?.due_today ? 'var(--amber)' : 'var(--ink-dim)' }}>{counts?.due_today || 0}</span> due today</div>
+        <div><span className="font-semibold" style={{ color: counts?.waiting_on ? 'var(--cool)' : 'var(--ink-dim)' }}>{counts?.waiting_on || 0}</span> waiting on others</div>
+        <div><span className="font-semibold" style={{ color: counts?.unowned ? 'var(--fuchsia)' : 'var(--ink-dim)' }}>{counts?.unowned || 0}</span> unowned &amp; escalating</div>
+        <div><span className="font-semibold" style={{ color: counts?.done ? 'var(--emerald)' : 'var(--ink-dim)' }}>{counts?.done || 0}</span> closed</div>
       </div>
     </div>
   );
 }
 
-function Ask({ asOf, onOpen }) {
-  const [q, setQ] = useState("");
-  const [log, setLog] = useState([]);
-  const [busy, setBusy] = useState(false);
-  const [sugg, setSugg] = useState([]);
+function CommitmentCard({ c, onOpen }) {
+  const isOverdue = c.status === "overdue";
+  const isDueToday = c.status === "due_today";
+  const isDone = c.status === "done";
+  const isUnowned = c.direction === "unowned" || c.owner === "UNCLEAR";
 
-  useEffect(() => { fetch(`${API}/api/suggested`).then(r=>r.json()).then(d=>setSugg(d.questions)); }, []);
+  let statusBadgeColor = 'var(--ink-dim)';
+  let statusBadgeText = c.status?.toUpperCase() || "UPCOMING";
+  if (isOverdue) {
+    statusBadgeColor = 'var(--jeop)';
+    statusBadgeText = c.lateness || "OVERDUE";
+  } else if (isDueToday) {
+    statusBadgeColor = 'var(--amber)';
+    statusBadgeText = c.lateness ? `DUE TODAY (${c.lateness})` : "DUE TODAY";
+  } else if (isDone) {
+    statusBadgeColor = 'var(--emerald)';
+    statusBadgeText = "CLOSED";
+  }
 
-  const send = async (text) => {
-    const question = (text ?? q).trim();
-    if (!question) return;
-    setBusy(true); setQ("");
-    const res = await fetch(`${API}/api/ask`, {
-      method:"POST", headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({ question, as_of: asOf })
-    }).then(r=>r.json());
-    setLog(l => [...l, { question, res }]);
-    setBusy(false);
-  };
+  const confWord = c.confidence_word || (c.confidence >= 0.85 ? "SETTLED" : c.confidence >= 0.6 ? "PROBABLE" : "UNSURE");
 
   return (
-    <div>
-      <div className="flex flex-wrap gap-2 mb-4">
-        {sugg.map(s => (
-          <button key={s} onClick={() => send(s)}
-            className="text-[12px] px-2.5 py-1.5 rounded-lg bg-slate-900 ring-1 ring-slate-800 hover:ring-slate-600 text-slate-300">
-            {s}
-          </button>
-        ))}
+    <div className="border rounded-xl p-5 transition fade relative"
+      style={{ backgroundColor: 'var(--paper-card)', borderColor: 'var(--rule)' }}>
+      {/* Top badges row */}
+      <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mono text-[10.5px] font-semibold tracking-wider px-2 py-0.5 rounded border"
+            style={{ color: statusBadgeColor, borderColor: statusBadgeColor }}>
+            {statusBadgeText}
+          </span>
+          <span className="mono text-[10.5px] px-2 py-0.5 rounded border"
+            style={{
+              color: isUnowned ? 'var(--fuchsia)' : c.direction === 'mine' ? 'var(--indigo)' : 'var(--cool)',
+              borderColor: 'var(--rule)'
+            }}>
+            {isUnowned ? "UNOWNED" : c.direction === 'mine' ? "MY ACTION" : `WAITING ON ${c.owner_name?.split(' ')[0]?.toUpperCase()}`}
+          </span>
+          {c.slip_count > 0 && (
+            <span className="mono text-[10.5px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30">
+              SLIPPED {c.slip_count}×
+            </span>
+          )}
+          {c.pulled_earlier && (
+            <span className="mono text-[10.5px] px-2 py-0.5 rounded bg-sky-500/10 text-sky-400 border border-sky-500/30">
+              PULLED EARLIER
+            </span>
+          )}
+        </div>
+        <div className="mono text-[10px] tracking-wider uppercase px-1.5 py-0.5 rounded bg-slate-800/40 text-slate-400 border border-slate-700/50">
+          CONF: {confWord}
+        </div>
       </div>
 
-      <div className="space-y-4 mb-4">
-        {log.map((entry, i) => (
-          <div key={i} className="fade">
-            <div className="text-[13px] text-slate-400 mb-1.5">
-              <span className="text-slate-600">You ·</span> {entry.question}
-            </div>
-            <div className="rounded-xl bg-slate-900/60 ring-1 ring-slate-800 px-4 py-3">
-              <div className="flex items-center gap-2 mb-2 text-[10px] uppercase tracking-wider text-slate-500">
-                <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">{entry.res.intent}</span>
-                <span className={`px-1.5 py-0.5 rounded ${entry.res.used_llm?"bg-emerald-500/15 text-emerald-300":"bg-slate-800 text-slate-400"}`}>
-                  {entry.res.used_llm ? `llm · ${entry.res.path.split(":")[1]}` : "rules"}
+      {/* Main title */}
+      <h3 className="text-[18px] md:text-[20px] font-medium leading-snug mb-2"
+        style={{ color: isDone ? 'var(--ink-muted)' : 'var(--ink)', textDecoration: isDone ? 'line-through' : 'none' }}>
+        {c.title}
+      </h3>
+
+      {/* Inline Deadline Trail */}
+      {c.deadline_trail && c.deadline_trail.length > 1 && (
+        <div className="mono text-[11px] flex flex-wrap items-center gap-1.5 mb-3" style={{ color: 'var(--ink-muted)' }}>
+          <span className="uppercase text-[9.5px] tracking-widest text-slate-500">Deadline trail:</span>
+          {c.deadline_trail.map((step, idx) => {
+            const isLast = idx === c.deadline_trail.length - 1;
+            return (
+              <React.Fragment key={idx}>
+                {idx > 0 && <span style={{ color: 'var(--ink-dim)' }}>&rarr;</span>}
+                <span style={{
+                  textDecoration: isLast ? 'none' : 'line-through',
+                  color: isLast ? (isOverdue ? 'var(--jeop)' : 'var(--amber)') : 'var(--ink-dim)',
+                  fontWeight: isLast ? '600' : 'normal'
+                }}>
+                  {step}
                 </span>
-                <span>{entry.res.latency_ms} ms</span>
-                {!entry.res.grounded && <span className="text-amber-400">ungrounded — refused to guess</span>}
-              </div>
-              <p className="text-[14px] text-slate-200 leading-relaxed">{entry.res.answer}</p>
-              {entry.res.deterministic_answer &&
-                <details className="mt-2">
-                  <summary className="text-[11px] text-slate-500 cursor-pointer hover:text-slate-300">
-                    compare with the deterministic answer
-                  </summary>
-                  <p className="mt-1.5 text-[13px] text-slate-400 leading-relaxed border-l-2 border-slate-700 pl-3">
-                    {entry.res.deterministic_answer}
-                  </p>
-                </details>}
-              {entry.res.citations.length > 0 &&
-                <div className="mt-2.5 flex flex-wrap gap-1 items-center">
-                  <span className="text-[11px] text-slate-500 mr-1">Grounded in:</span>
-                  {entry.res.citations.map(c =>
-                    <code key={c} className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">{c}</code>)}
-                </div>}
-              {entry.res.commitments.length > 0 &&
-                <div className="mt-3 space-y-2">
-                  {entry.res.commitments.map(c => <Commitment key={c.id} c={c} onOpen={onOpen} />)}
-                </div>}
-            </div>
-          </div>
-        ))}
-      </div>
+              </React.Fragment>
+            );
+          })}
+        </div>
+      )}
 
-      <div className="flex gap-2 sticky bottom-0 bg-[#0a0e14] pt-2">
-        <input value={q} onChange={e=>setQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()}
-          placeholder="Ask about this week…"
-          className="flex-1 bg-slate-900 ring-1 ring-slate-800 focus:ring-indigo-500/50 outline-none rounded-xl px-4 py-2.5 text-[14px] placeholder:text-slate-600" />
-        <button onClick={()=>send()} disabled={busy}
-          className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white text-[14px] font-medium">
-          {busy ? "…" : "Ask"}
+      {/* First-person refusal callout for unowned items */}
+      {isUnowned && c.ownership_note && (
+        <div className="border border-dashed rounded-lg p-3.5 my-3 text-[14px] md:text-[15px] leading-relaxed italic"
+          style={{ borderColor: 'var(--fuchsia)', color: 'var(--ink)', backgroundColor: 'rgba(232, 121, 249, 0.05)' }}>
+          {c.ownership_note}
+        </div>
+      )}
+
+      {/* Latest quote snippet if available */}
+      {c.latest_quote && (
+        <div className="mono text-[11.5px] rounded p-2.5 my-2.5 border"
+          style={{ backgroundColor: 'var(--paper-card2)', borderColor: 'var(--rule)', color: 'var(--ink-muted)' }}>
+          <div className="text-[10px] uppercase tracking-wider mb-1" style={{ color: 'var(--ink-dim)' }}>
+            Latest Word &middot; {c.latest_quote.who} ({c.latest_quote.source_id}) &middot; {c.latest_quote.ts?.replace('T', ' ')}
+          </div>
+          <div className="italic text-[12.5px]" style={{ color: 'var(--ink)' }}>
+            &ldquo;{c.latest_quote.quote}&rdquo;
+          </div>
+        </div>
+      )}
+
+      {/* Evidence tally and inspect button */}
+      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t mt-3"
+        style={{ borderColor: 'var(--rule)' }}>
+        <div className="flex items-center gap-2 mono text-[11px]" style={{ color: 'var(--ink-muted)' }}>
+          <span className="flex items-center" title={`${c.evidence?.length || 0} sources deduplicated`}>
+            {Array.from({ length: c.evidence?.length || 1 }).map((_, i) => (
+              <span key={i} className="tally-tick"></span>
+            ))}
+          </span>
+          <span>{c.evidence?.length || 1} sources deduplicated into this commitment</span>
+        </div>
+        <button onClick={() => onOpen(c)}
+          className="mono text-[11px] uppercase tracking-wider px-3 py-1 rounded border transition hover:underline"
+          style={{ borderColor: 'var(--rule)', color: 'var(--indigo)' }}>
+          Inspect Evidence &amp; Timeline &rarr;
         </button>
       </div>
     </div>
   );
 }
 
-function Sources() {
-  const [data, setData] = useState(null);
-  const [kind, setKind] = useState("");
-  useEffect(() => {
-    fetch(`${API}/api/sources${kind?`?kind=${kind}`:""}`).then(r=>r.json()).then(setData);
-  }, [kind]);
-  const kinds = ["", "transcript", "email", "voice_note", "calendar"];
+function EvidenceDrawer({ c, onClose }) {
+  if (!c) return null;
   return (
-    <div>
-      <div className="flex gap-2 mb-4">
-        {kinds.map(k => (
-          <button key={k} onClick={()=>setKind(k)}
-            className={`text-[12px] px-2.5 py-1.5 rounded-lg ring-1 ${kind===k?"bg-indigo-600/20 ring-indigo-500/40 text-indigo-200":"bg-slate-900 ring-slate-800 text-slate-400"}`}>
-            {k === "" ? `All (${data?data.count:""})` : `${KIND_ICON[k]} ${k.replace("_"," ")}`}
+    <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <div onClick={e => e.stopPropagation()}
+        className="relative w-full max-w-xl h-full overflow-y-auto border-l p-6 md:p-8 fade"
+        style={{ backgroundColor: 'var(--paper-card)', borderColor: 'var(--rule)' }}>
+        <div className="flex justify-between items-start gap-4 mb-4">
+          <h2 className="text-[22px] font-semibold leading-snug" style={{ color: 'var(--ink)' }}>
+            {c.title}
+          </h2>
+          <button onClick={onClose} className="mono text-2xl text-slate-400 hover:text-slate-200 leading-none">&times;</button>
+        </div>
+
+        <div className="mono text-[11.5px] grid grid-cols-2 gap-3 p-3.5 rounded border mb-6"
+          style={{ backgroundColor: 'var(--paper-card2)', borderColor: 'var(--rule)' }}>
+          <div><span style={{ color: 'var(--ink-dim)' }}>Owner:</span> <strong style={{ color: 'var(--ink)' }}>{c.owner_name}</strong></div>
+          <div><span style={{ color: 'var(--ink-dim)' }}>Counterparty:</span> <strong style={{ color: 'var(--ink)' }}>{c.counterparty_name || "—"}</strong></div>
+          <div><span style={{ color: 'var(--ink-dim)' }}>Deadline:</span> <strong style={{ color: 'var(--ink)' }}>{c.due_at ? c.due_at.replace("T"," ") : "none stated"}</strong></div>
+          <div><span style={{ color: 'var(--ink-dim)' }}>From words:</span> <em style={{ color: 'var(--ink)' }}>&ldquo;{c.due_phrase || "—"}&rdquo;</em></div>
+        </div>
+
+        {/* Timeline */}
+        <div className="mb-6">
+          <div className="mono text-[11px] uppercase tracking-widest mb-3" style={{ color: 'var(--indigo)' }}>
+            Chronological Timeline ({c.history?.length || 0} events)
+          </div>
+          <ol className="space-y-2 border-l-2 pl-4 ml-1" style={{ borderColor: 'var(--rule)' }}>
+            {c.history && c.history.map((h, i) => (
+              <li key={i} className="text-[13px] relative">
+                <span className="absolute -left-[21px] top-1.5 w-2 h-2 rounded-full bg-indigo-500"></span>
+                <div className="mono text-[10.5px]" style={{ color: 'var(--ink-dim)' }}>
+                  {h.ts.slice(5, 16).replace("T", " ")} &middot; <span className="uppercase text-slate-400">{h.kind}</span>
+                </div>
+                <div className="leading-snug mt-0.5" style={{ color: 'var(--ink)' }}>{h.detail}</div>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        {/* Sources */}
+        <div>
+          <div className="mono text-[11px] uppercase tracking-widest mb-3" style={{ color: 'var(--indigo)' }}>
+            Evidence &middot; {c.evidence?.length} Sources Reconciled
+          </div>
+          <div className="space-y-3">
+            {c.evidence && c.evidence.map(e => (
+              <div key={e.source_id} className="rounded-lg border p-3"
+                style={{ backgroundColor: 'var(--paper-card2)', borderColor: 'var(--rule)' }}>
+                <div className="mono flex items-center justify-between text-[11px] mb-1.5" style={{ color: 'var(--ink-dim)' }}>
+                  <div className="flex items-center gap-1.5">
+                    <span>{KIND_ICON[e.source_id.startsWith("EM") ? "email" : e.source_id.startsWith("TR") ? "transcript" : e.source_id.startsWith("VN") ? "voice_note" : "calendar"]}</span>
+                    <strong style={{ color: 'var(--indigo)' }}>{e.source_id}</strong>
+                    <span>&middot; {e.label}</span>
+                  </div>
+                </div>
+                <blockquote className="text-[14px] italic leading-relaxed pl-2 border-l-2 my-1.5"
+                  style={{ borderColor: 'var(--indigo)', color: 'var(--ink)' }}>
+                  &ldquo;{e.quote}&rdquo;
+                </blockquote>
+                {e.acts && e.acts.length > 0 && (
+                  <div className="mono flex gap-1 flex-wrap mt-2">
+                    {e.acts.map(a => (
+                      <span key={a} className="text-[9.5px] px-1.5 py-0.5 rounded uppercase tracking-wider bg-slate-800 text-indigo-300 border border-slate-700">
+                        {a}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ClosedSection({ items, onOpen }) {
+  const [open, setOpen] = useState(false);
+  if (!items || items.length === 0) return null;
+
+  return (
+    <section className="border-t pt-6 mb-8" style={{ borderColor: 'var(--rule)' }}>
+      <div className="flex items-center justify-between cursor-pointer" onClick={() => setOpen(!open)}>
+        <div>
+          <div className="mono text-[11px] uppercase tracking-widest" style={{ color: 'var(--emerald)' }}>
+            3 &nbsp;What Closed Without You ({items.length})
+          </div>
+          <p className="text-[13.5px] mt-0.5" style={{ color: 'var(--ink-muted)' }}>
+            Things finished but never manually ticked off. Closed automatically from delivery and confirmation evidence.
+          </p>
+        </div>
+        <button className="mono text-[12px] px-2 py-1 rounded border"
+          style={{ borderColor: 'var(--rule)', color: 'var(--ink-muted)' }}>
+          {open ? "▲ Hide" : "▼ Show"}
+        </button>
+      </div>
+
+      {open && (
+        <div className="space-y-3 mt-4 fade">
+          {items.map(c => (
+            <div key={c.id} className="border rounded-xl p-4 flex flex-wrap items-center justify-between gap-3"
+              style={{ backgroundColor: 'var(--paper-card)', borderColor: 'var(--rule)' }}>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="mono text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">CLOSED</span>
+                  <span className="text-[16px] line-through font-medium" style={{ color: 'var(--ink-muted)' }}>{c.title}</span>
+                </div>
+                {c.latest_quote && (
+                  <div className="mono text-[11px] italic" style={{ color: 'var(--ink-dim)' }}>
+                    &ldquo;{c.latest_quote.quote}&rdquo; — {c.latest_quote.who}
+                  </div>
+                )}
+              </div>
+              <button onClick={() => onOpen(c)}
+                className="mono text-[11px] px-2.5 py-1 rounded border"
+                style={{ borderColor: 'var(--rule)', color: 'var(--ink-muted)' }}>
+                Provenance &rarr;
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function AskSection({ asOf, onOpen }) {
+  const [q, setQ] = useState("");
+  const [log, setLog] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const [sugg, setSugg] = useState([]);
+
+  useEffect(() => {
+    fetch(`${API}/api/suggested`).then(r => r.json()).then(d => setSugg(d.questions || []));
+  }, []);
+
+  const send = async (text) => {
+    const question = (text ?? q).trim();
+    if (!question) return;
+    setBusy(true);
+    setQ("");
+    try {
+      const res = await fetch(`${API}/api/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question, as_of: asOf })
+      }).then(r => r.json());
+      setLog(l => [...l, { question, res }]);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <section className="border-t pt-8 mb-8" style={{ borderColor: 'var(--rule)' }}>
+      <div className="mono text-[11px] uppercase tracking-widest mb-1" style={{ color: 'var(--indigo)' }}>
+        4 &nbsp;Ask The Record
+      </div>
+      <p className="text-[14px] mb-4" style={{ color: 'var(--ink-muted)' }}>
+        Ask about your week in plain words. Every answer arrives grounded in exact source sentences, or with an honest refusal to guess.
+      </p>
+
+      {/* Suggestions */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {sugg.map(s => (
+          <button key={s} onClick={() => send(s)}
+            className="mono text-[11px] px-3 py-1.5 rounded-lg border transition hover:border-indigo-400"
+            style={{ backgroundColor: 'var(--paper-card)', borderColor: 'var(--rule)', color: 'var(--ink-muted)' }}>
+            {s}
           </button>
         ))}
       </div>
-      <div className="space-y-1.5">
-        {data && data.items.map(s => (
-          <div key={s.id} className="rounded-lg bg-slate-900/50 ring-1 ring-slate-800 px-3 py-2 fade">
-            <div className="flex items-center gap-2 text-[11px] text-slate-500">
-              <code className="text-slate-400">{s.id}</code>
-              <span>{KIND_ICON[s.kind]}</span>
-              <span className="truncate">{s.label}</span>
+
+      {/* Answers History */}
+      <div className="space-y-4 mb-4">
+        {log.map((entry, i) => (
+          <div key={i} className="border rounded-xl p-4 md:p-5 fade"
+            style={{ backgroundColor: 'var(--paper-card)', borderColor: 'var(--rule)' }}>
+            <div className="mono text-[12px] mb-2" style={{ color: 'var(--ink-dim)' }}>
+              <span>You asked:</span> <strong style={{ color: 'var(--ink)' }}>&ldquo;{entry.question}&rdquo;</strong>
             </div>
-            <p className="mt-1 text-[13px] text-slate-300">{s.text}</p>
+
+            <div className="mono flex items-center gap-2 mb-3 text-[10px] uppercase tracking-wider">
+              <span className={`px-2 py-0.5 rounded border ${entry.res.used_llm ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30" : "bg-slate-800 text-slate-400 border-slate-700"}`}>
+                {entry.res.used_llm ? `LLM &middot; ${entry.res.path?.split(":")[1] || "groq"}` : "DETERMINISTIC RULES"}
+              </span>
+              <span style={{ color: 'var(--ink-dim)' }}>{entry.res.latency_ms} ms</span>
+              {!entry.res.grounded && (
+                <span className="text-amber-400 font-semibold border border-amber-500/30 px-2 py-0.5 rounded">
+                  UNGROUNDED &middot; REFUSED TO GUESS
+                </span>
+              )}
+            </div>
+
+            <p className="text-[17px] md:text-[18px] leading-relaxed mb-3" style={{ color: 'var(--ink)' }}>
+              {entry.res.answer}
+            </p>
+
+            {entry.res.deterministic_answer && (
+              <details className="mono text-[11.5px] border-l-2 pl-3 my-2" style={{ borderColor: 'var(--rule)' }}>
+                <summary className="cursor-pointer text-slate-400 hover:text-slate-200">
+                  Compare with deterministic baseline answer
+                </summary>
+                <p className="mt-1 italic" style={{ color: 'var(--ink-muted)' }}>
+                  {entry.res.deterministic_answer}
+                </p>
+              </details>
+            )}
+
+            {entry.res.citations?.length > 0 && (
+              <div className="mono text-[11px] flex flex-wrap items-center gap-1.5 mt-3 pt-2 border-t"
+                style={{ borderColor: 'var(--rule)', color: 'var(--ink-muted)' }}>
+                <span className="uppercase text-[9.5px] text-slate-500">Citations:</span>
+                {entry.res.citations.map(c => (
+                  <span key={c} className="px-1.5 py-0.5 rounded bg-slate-800 text-indigo-300 border border-slate-700">
+                    {c}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         ))}
       </div>
-    </div>
+
+      {/* Input */}
+      <div className="flex gap-2">
+        <input value={q} onChange={e => setQ(e.target.value)} onKeyDown={e => e.key === "Enter" && send()}
+          placeholder="Ask e.g. 'What did I promise Raghav?' or 'Who owns the Mumbai lease?'…"
+          className="flex-1 mono text-[13.5px] px-4 py-2.5 rounded-xl border outline-none focus:border-indigo-500"
+          style={{ backgroundColor: 'var(--paper-card)', borderColor: 'var(--rule)', color: 'var(--ink)' }} />
+        <button onClick={() => send()} disabled={busy}
+          className="mono text-[12px] uppercase tracking-wider font-semibold px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50">
+          {busy ? "Thinking…" : "Ask"}
+        </button>
+      </div>
+    </section>
+  );
+}
+
+function SourcesSection() {
+  const [data, setData] = useState(null);
+  const [kind, setKind] = useState("");
+
+  useEffect(() => {
+    fetch(`${API}/api/sources${kind ? `?kind=${kind}` : ""}`).then(r => r.json()).then(setData);
+  }, [kind]);
+
+  const kinds = ["", "transcript", "email", "voice_note", "calendar"];
+
+  return (
+    <section className="border-t pt-8 mb-8" style={{ borderColor: 'var(--rule)' }}>
+      <div className="mono text-[11px] uppercase tracking-widest mb-1" style={{ color: 'var(--indigo)' }}>
+        5 &nbsp;Complete Data Pack &middot; 71 Source Units
+      </div>
+      <p className="text-[14px] mb-4" style={{ color: 'var(--ink-muted)' }}>
+        Inspect every raw utterance, calendar meeting, email message and voice memo. Nothing in the brief exists without provenance here.
+      </p>
+
+      <div className="mono flex flex-wrap gap-2 mb-4">
+        {kinds.map(k => (
+          <button key={k} onClick={() => setKind(k)}
+            className={`text-[11px] px-3 py-1.5 rounded-lg border transition ${kind === k ? "bg-indigo-600/20 border-indigo-500 text-indigo-300" : "border-slate-800 text-slate-400 hover:border-slate-600"}`}>
+            {k === "" ? `All (${data?.count || 71})` : `${KIND_ICON[k]} ${k.replace("_", " ")}`}
+          </button>
+        ))}
+      </div>
+
+      <div className="space-y-2 max-h-[480px] overflow-y-auto pr-1">
+        {data && data.items.map(s => (
+          <div key={s.id} className="border rounded-lg p-3 text-[13px] fade"
+            style={{ backgroundColor: 'var(--paper-card)', borderColor: 'var(--rule)' }}>
+            <div className="mono flex items-center justify-between text-[10.5px] mb-1 text-slate-500">
+              <div className="flex items-center gap-2">
+                <strong className="text-indigo-400">{s.id}</strong>
+                <span>{KIND_ICON[s.kind]} {s.kind}</span>
+                <span>&middot; {s.speaker || s.label}</span>
+              </div>
+              <div>{s.ts?.replace('T', ' ')}</div>
+            </div>
+            <p className="leading-snug" style={{ color: 'var(--ink)' }}>{s.text}</p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
 function App() {
   const [asOf, setAsOf] = useState("2026-09-23T09:00");
   const [brief, setBrief] = useState(null);
-  const [tab, setTab] = useState("brief");
-  const [open, setOpen] = useState(null);
   const [health, setHealth] = useState(null);
+  const [drawerItem, setDrawerItem] = useState(null);
+  const [theme, setTheme] = useState("dark");
 
-  useEffect(() => { fetch(`${API}/api/health`).then(r=>r.json()).then(setHealth); }, []);
+  const toggleTheme = () => {
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
+    document.documentElement.setAttribute("data-theme", next);
+  };
+
+  useEffect(() => {
+    fetch(`${API}/api/health`).then(r => r.json()).then(setHealth);
+  }, []);
+
   useEffect(() => {
     setBrief(null);
-    fetch(`${API}/api/brief?as_of=${encodeURIComponent(asOf)}`).then(r=>r.json()).then(setBrief);
+    fetch(`${API}/api/brief?as_of=${encodeURIComponent(asOf)}`).then(r => r.json()).then(setBrief);
   }, [asOf]);
 
-  const c = brief?.counts;
+  const activeCommitments = [];
+  const closedItems = [];
+
+  if (brief && brief.sections) {
+    brief.sections.forEach(sec => {
+      if (sec.key === "done") {
+        closedItems.push(...sec.items);
+      } else {
+        activeCommitments.push(...sec.items);
+      }
+    });
+  }
 
   return (
-    <div className="max-w-5xl mx-auto px-5 py-7">
-      <header className="flex flex-wrap items-start justify-between gap-4 mb-6">
+    <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
+      {/* Top bar */}
+      <header className="flex flex-wrap items-baseline justify-between gap-4 pb-6 border-b mb-8"
+        style={{ borderColor: 'var(--rule)' }}>
         <div>
-          <h1 className="text-[22px] font-semibold text-slate-50 tracking-tight">Executive Productivity Agent</h1>
-          <p className="text-[13px] text-slate-500 mt-0.5">
-            Arjun Malhotra · VP Sales · week of 21–25 Sep 2026
+          <div className="mono text-[10.5px] uppercase tracking-widest mb-1" style={{ color: 'var(--indigo)' }}>
+            AIONOS Agentic AI Factory &middot; Assignment 1
+          </div>
+          <h1 className="text-[28px] md:text-[34px] font-semibold tracking-tight" style={{ color: 'var(--ink)' }}>
+            Executive Productivity Agent
+          </h1>
+          <p className="text-[14px] mt-0.5" style={{ color: 'var(--ink-muted)' }}>
+            Arjun Malhotra &middot; VP Sales &middot; Week of 21–25 September 2026
           </p>
         </div>
-        <div className="flex items-center gap-2 text-[11px]">
+
+        <div className="flex items-center gap-3">
           {health && (
-            <span className={`px-2 py-1 rounded-lg ring-1 ${health.llm_enabled?"bg-emerald-500/10 text-emerald-300 ring-emerald-500/25":"bg-slate-800 text-slate-400 ring-slate-700"}`}>
-              {health.llm_enabled ? `LLM · ${health.provider} (answers only)` : "deterministic"}
+            <span className="mono text-[10.5px] px-2.5 py-1 rounded border"
+              style={{
+                borderColor: health.llm_enabled ? 'rgba(52, 211, 153, 0.4)' : 'var(--rule)',
+                color: health.llm_enabled ? 'var(--emerald)' : 'var(--ink-dim)',
+                backgroundColor: health.llm_enabled ? 'rgba(52, 211, 153, 0.08)' : 'transparent'
+              }}>
+              {health.llm_enabled ? `LLM &middot; ${health.provider} (${health.model?.split('/')[1] || health.model})` : "DETERMINISTIC"}
             </span>
           )}
-          {brief && <span className="px-2 py-1 rounded-lg bg-slate-800 text-slate-400 ring-1 ring-slate-700">{brief.sources_considered} sources · {brief.latency_ms} ms</span>}
+          <ThemeToggle theme={theme} onToggle={toggleTheme} />
         </div>
       </header>
 
-      {/* Time travel */}
-      <div className="mb-5">
-        <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">
-          Replay the week — the agent only sees what had happened by this point
+      {/* Standpoint / Time-travel selector */}
+      <div className="mb-8">
+        <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+          <span className="mono text-[11px] uppercase tracking-wider" style={{ color: 'var(--ink)' }}>
+            Standpoint in the week
+          </span>
+          <span className="mono text-[11px]" style={{ color: 'var(--ink-dim)' }}>
+            The agent knows only what had happened by this point
+          </span>
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="grid grid-cols-5 gap-2">
           {DAYS.map(([label, val]) => (
-            <button key={val} onClick={()=>setAsOf(val)}
-              className={`px-3 py-1.5 rounded-lg text-[13px] ring-1 transition ${asOf===val?"bg-indigo-600 text-white ring-indigo-500":"bg-slate-900 text-slate-400 ring-slate-800 hover:ring-slate-600"}`}>
+            <button key={val} onClick={() => setAsOf(val)}
+              className={`mono text-[12px] py-2 px-1 rounded-lg border transition text-center ${asOf === val ? "bg-indigo-600 text-white border-indigo-500 font-semibold" : "hover:border-slate-500"}`}
+              style={{
+                backgroundColor: asOf === val ? 'var(--indigo)' : 'var(--paper-card)',
+                borderColor: asOf === val ? 'var(--indigo)' : 'var(--rule)',
+                color: asOf === val ? '#ffffff' : 'var(--ink-muted)'
+              }}>
               {label}
             </button>
           ))}
         </div>
       </div>
 
+      {/* Section 1: The Standing */}
       {brief && (
-        <div className="rounded-2xl bg-gradient-to-br from-slate-900 to-slate-900/40 ring-1 ring-slate-800 p-5 mb-5 fade">
-          <div className="text-[11px] uppercase tracking-wider text-slate-500">{brief.as_of_human}</div>
-          <p className="text-[17px] text-slate-100 mt-1.5 font-medium">{brief.headline}</p>
-          <div className="flex flex-wrap gap-2 mt-4">
-            <Stat n={c.overdue}    label="Overdue"    tone="text-rose-400" />
-            <Stat n={c.due_today}  label="Due today"  tone="text-amber-400" />
-            <Stat n={c.waiting_on} label="Waiting on" tone="text-cyan-400" />
-            <Stat n={c.unowned}    label="No owner"   tone="text-fuchsia-400" />
-            <Stat n={c.done}       label="Closed"     tone="text-emerald-400" />
+        <StandingBanner
+          standing={brief.standing}
+          asOfHuman={brief.as_of_human}
+          counts={brief.counts}
+          headline={brief.headline}
+          heard={brief.fragments_heard || brief.sources_considered}
+          total={brief.fragments_total || 71}
+        />
+      )}
+
+      {/* Section 2: What You Owe & Are Blocked On */}
+      <section className="mb-10">
+        <div className="flex items-baseline justify-between mb-4">
+          <div>
+            <div className="mono text-[11px] uppercase tracking-widest" style={{ color: 'var(--indigo)' }}>
+              2 &nbsp;Active Commitments ({activeCommitments.length})
+            </div>
+            <p className="text-[13.5px] mt-0.5" style={{ color: 'var(--ink-muted)' }}>
+              Ordered by jeopardy: overdue first, then due today, then blocked on others, then unowned.
+            </p>
           </div>
         </div>
-      )}
 
-      <nav className="flex gap-1 mb-5 border-b border-slate-800">
-        {[["brief","Daily brief"],["ask","Ask"],["sources","Sources"]].map(([k,l]) => (
-          <button key={k} onClick={()=>setTab(k)}
-            className={`px-4 py-2 text-[14px] -mb-px border-b-2 transition ${tab===k?"border-indigo-500 text-slate-100":"border-transparent text-slate-500 hover:text-slate-300"}`}>
-            {l}
-          </button>
-        ))}
-      </nav>
-
-      {tab === "brief" && brief && (
-        <div className="space-y-6">
-          {brief.sections.filter(s=>s.items.length).map(sec => (
-            <section key={sec.key} className="fade">
-              <h2 className="text-[13px] font-semibold text-slate-300">{sec.title}
-                <span className="ml-2 text-slate-600 font-normal">{sec.items.length}</span>
-              </h2>
-              <p className="text-[12px] text-slate-500 mb-2.5">{sec.hint}</p>
-              <div className="space-y-2">
-                {sec.items.map(c => <Commitment key={c.id} c={c} onOpen={setOpen} />)}
-              </div>
-            </section>
+        <div className="space-y-4">
+          {activeCommitments.map(c => (
+            <CommitmentCard key={c.id} c={c} onOpen={setDrawerItem} />
           ))}
+          {activeCommitments.length === 0 && (
+            <div className="border rounded-xl p-6 text-center italic"
+              style={{ borderColor: 'var(--rule)', color: 'var(--ink-dim)' }}>
+              No active commitments at this point in the week.
+            </div>
+          )}
         </div>
-      )}
-      {tab === "brief" && !brief && <div className="text-slate-500 text-sm">Running the pipeline…</div>}
-      {tab === "ask" && <Ask asOf={asOf} onOpen={setOpen} />}
-      {tab === "sources" && <Sources />}
+      </section>
 
-      <Drawer c={open} onClose={()=>setOpen(null)} />
+      {/* Section 3: What Closed Without You */}
+      <ClosedSection items={closedItems} onOpen={setDrawerItem} />
 
-      <footer className="mt-12 pt-5 border-t border-slate-800 text-[11px] text-slate-600">
-        Grounded only in the supplied data pack · ownership is never inferred ·
-        <a href="/docs" className="text-slate-500 hover:text-slate-300 ml-1 underline">API docs</a>
+      {/* Section 4: Ask The Record */}
+      <AskSection asOf={asOf} onOpen={setDrawerItem} />
+
+      {/* Section 5: Complete Data Pack */}
+      <SourcesSection />
+
+      {/* Drawer */}
+      <EvidenceDrawer c={drawerItem} onClose={() => setDrawerItem(null)} />
+
+      {/* Footer */}
+      <footer className="mono text-[11px] pt-8 border-t flex flex-wrap justify-between items-center gap-4"
+        style={{ borderColor: 'var(--rule)', color: 'var(--ink-dim)' }}>
+        <div>
+          Executive Productivity Agent &middot; Built for AIONOS Recruitment Assignment 1
+        </div>
+        <div>
+          <a href="/docs" target="_blank" className="hover:underline text-indigo-400">Interactive REST API (/docs)</a>
+        </div>
       </footer>
     </div>
   );

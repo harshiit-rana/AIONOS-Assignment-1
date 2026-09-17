@@ -9,8 +9,47 @@ from __future__ import annotations
 
 from datetime import datetime
 
+from app.agent.ingest import load_sources
 from app.agent.resolve import (DONE, DUE_TODAY, MINE, OVERDUE, UNOWNED,
                                WAITING, Commitment)
+
+
+def _first(name: str | None) -> str:
+    return (name or "someone").split()[0]
+
+
+def _standing(mine, waiting, unowned, as_of: datetime) -> list[dict]:
+    """Three plain sentences. The only part an executive has to read."""
+    lines: list[dict] = []
+    late = [c for c in mine if c.status == OVERDUE]
+    today = [c for c in mine if c.status == DUE_TODAY]
+    if late:
+        c = late[0]
+        lines.append({"tone": "jeop", "text":
+            f"You are {c.lateness.replace('late by ', '')} late to {_first(c.counterparty_name)}."})
+    elif today:
+        c = today[0]
+        due = datetime.fromisoformat(c.due_at)
+        lines.append({"tone": "jeop", "text":
+            f"You owe {_first(c.counterparty_name)} the {c.title.split(' to ')[0].lower().replace('send updated ', '')} by {due:%H:%M} today."})
+    else:
+        lines.append({"tone": "ink", "text": "Nothing of yours is late, and nothing is due today."})
+
+    blocked = [c for c in waiting if c.status != DONE]
+    if blocked:
+        c = sorted(blocked, key=lambda x: x.due_at or "9")[0]
+        if c.status == OVERDUE:
+            lines.append({"tone": "cool", "text":
+                f"You are blocked on {_first(c.owner_name)}, who is {c.lateness.replace('late by ', '')} late to you."})
+        else:
+            lines.append({"tone": "cool", "text":
+                f"You are waiting on {_first(c.owner_name)}, due {c.lateness}."})
+    if unowned:
+        c = unowned[0]
+        day = datetime.fromisoformat(c.due_at).strftime('%A') if c.due_at else "this week"
+        lines.append({"tone": "ink", "text":
+            f"One thing due {day} has no owner, and I will not give it one."})
+    return lines[:3]
 
 
 def _line(c: Commitment) -> dict:
@@ -45,10 +84,17 @@ def build_brief(commitments: list[Commitment], as_of: datetime) -> dict:
     if unowned:
         headline += f" {len(unowned)} item{'s' if len(unowned) > 1 else ''} still has no owner."
 
+    heard = sum(1 for c in commitments for _ in c.evidence)
+    total_sources = len(load_sources())
+    seen_ids = {e.source_id for c in commitments for e in c.evidence}
+
     return {
         "as_of": as_of.isoformat(timespec="minutes"),
         "as_of_human": f"{as_of:%A %d %B %Y, %H:%M}",
+        "as_of_short": f"{as_of:%a %d, %H:%M}",
         "headline": headline,
+        "standing": _standing(mine, waiting, unowned, as_of),
+        "fragments_total": total_sources,
         "counts": {
             "overdue": len(overdue), "due_today": len(today),
             "upcoming": len(upcoming), "waiting_on": len(open_waiting),

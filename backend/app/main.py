@@ -92,6 +92,7 @@ def get_brief(as_of: str | None = Query(None, description="ISO datetime inside t
     payload = build_brief(commitments, dt)
     payload["mode"] = mode()
     payload["sources_considered"] = len(units)
+    payload["fragments_heard"] = len(units)
     ms = (time.perf_counter() - t0) * 1000
 
     record_run(dt.isoformat(timespec="minutes"), mode(), len(units), len(commitments), payload)

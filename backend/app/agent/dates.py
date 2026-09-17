@@ -153,3 +153,22 @@ def humanize(due: datetime, as_of: datetime) -> str:
     if delta_days == 1:
         return "due tomorrow"
     return f"due in {delta_days} days"
+
+
+def precise_delta(due: datetime, as_of: datetime) -> str:
+    """'7h 40m' / '1d 4h' -- the design says lateness in hours, not 'a day'."""
+    secs = abs(int((due - as_of).total_seconds()))
+    d, rem = divmod(secs, 86400)
+    h, rem = divmod(rem, 3600)
+    m = rem // 60
+    if d:
+        return f"{d}d {h}h"
+    if h:
+        return f"{h}h {m:02d}m"
+    return f"{m}m"
+
+
+def lateness(due: datetime, as_of: datetime) -> str:
+    if due < as_of:
+        return f"late by {precise_delta(due, as_of)}"
+    return f"in {precise_delta(due, as_of)}"

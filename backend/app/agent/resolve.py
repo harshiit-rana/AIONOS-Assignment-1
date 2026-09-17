@@ -18,7 +18,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from app.agent.dates import humanize
+from app.agent.dates import humanize, lateness
 from app.agent.extract import TOPICS, UNCLEAR, Mention
 from app.agent.ingest import name_of
 
@@ -72,6 +72,11 @@ class Commitment:
     slip_count: int
     needs_escalation: bool
     ownership_note: str | None
+    confidence_word: str = "PROBABLE"     # SETTLED | PROBABLE | UNSURE
+    lateness: str | None = None            # "late by 7h 40m" / "in 1d 6h"
+    deadline_trail: list[str] = field(default_factory=list)  # ["Tue 22 23:59", ...] superseded first
+    pulled_earlier: bool = False           # the *waiting* party moved it sooner
+    latest_quote: dict | None = None       # most recent evidence, for the card
     evidence: list[Evidence] = field(default_factory=list)
     history: list[HistoryEvent] = field(default_factory=list)
 
@@ -86,6 +91,11 @@ class Commitment:
             "slip_count": self.slip_count,
             "needs_escalation": self.needs_escalation,
             "ownership_note": self.ownership_note,
+            "confidence_word": self.confidence_word,
+            "lateness": self.lateness,
+            "deadline_trail": self.deadline_trail,
+            "pulled_earlier": self.pulled_earlier,
+            "latest_quote": self.latest_quote,
             "evidence": [e.__dict__ for e in self.evidence],
             "history": [h.__dict__ for h in self.history],
         }
@@ -135,11 +145,17 @@ def resolve_commitments(mentions: list[Mention], as_of: datetime) -> list[Commit
         else:
             voiced = {m.owner_hint for m in ms if m.owner_hint}
             who = ", ".join(sorted(voiced)) if voiced else None
+            people = sorted({name_of(m.speaker).split()[0] for m in disclaims
+                             if m.speaker not in NON_PERSONS})
             ownership_note = (
-                f"No one has accepted this. {len(disclaims)} source(s) explicitly "
-                f"disclaim or question ownership"
-                + (f"; {who} was suggested but never confirmed." if who
-                   else "; no owner was ever named.")
+                "I am not assigning this to you. "
+                + (f"{', '.join(people[:-1])} and {people[-1]}" if len(people) > 1
+                   else (people[0] if people else "Everyone"))
+                + f" discussed it and none of them accepted it."
+                + (f" {who.title()} was suggested and never confirmed, and {who.title()} is a mailing list, not a person."
+                   if who else "")
+                + " What I am confident about: this exists, it is unassigned, and the deadline is real. "
+                  "Whose it is, I do not know."
             )
 
         # --- Counterparty -----------------------------------------------
@@ -238,6 +254,29 @@ def resolve_commitments(mentions: list[Mention], as_of: datetime) -> list[Commit
                 history.append(HistoryEvent(ts, m.source_id, "disclaimed",
                     f"{name_of(m.speaker)} did not take ownership"))
 
+        # --- Design fields ------------------------------------------------
+        conf_word = "SETTLED" if conf >= 0.85 else ("PROBABLE" if conf >= 0.6 else "UNSURE")
+        # The trail is the owner's own promises, in order. The counterparty's
+        # asks are pressure, not deadlines, and would clutter it.
+        own = [m for m in ms if m.due and "COMMIT" in m.acts and m.speaker == owner]
+        trail = []
+        for m in own:
+            lbl = f"{m.due.due_at:%a %d %H:%M}"
+            if not trail or trail[-1] != lbl:
+                trail.append(lbl)
+        # "Pulled earlier": the waiting party asked for it sooner, and the
+        # owner then agreed to the sooner date. Different from a slip.
+        pulled = False
+        for i, m in enumerate(ms):
+            if "REQUEST" in m.acts and m.due and m.speaker != owner:
+                prev = [o for o in own if o.ts < m.ts]
+                nxt = [o for o in own if o.ts > m.ts]
+                if prev and nxt and m.due.due_at < prev[-1].due.due_at                         and nxt[0].due.due_at <= m.due.due_at:
+                    pulled = True
+        last = ms[-1]
+        latest_q = {"who": name_of(last.speaker), "ts": last.ts.isoformat(timespec="minutes"),
+                    "quote": last.text, "source_id": last.source_id}
+
         out.append(Commitment(
             id=topic,
             title=TOPICS[topic]["title"],
@@ -254,6 +293,11 @@ def resolve_commitments(mentions: list[Mention], as_of: datetime) -> list[Commit
             slip_count=slips,
             needs_escalation=(owner == UNCLEAR),
             ownership_note=ownership_note,
+            confidence_word=conf_word,
+            lateness=lateness(due_at, as_of) if due_at else None,
+            deadline_trail=trail,
+            pulled_earlier=pulled,
+            latest_quote=latest_q,
             evidence=evidence,
             history=history,
         ))
