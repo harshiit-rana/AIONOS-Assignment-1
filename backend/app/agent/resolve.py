@@ -211,9 +211,17 @@ def resolve_commitments(mentions: list[Mention], as_of: datetime) -> list[Commit
         for m in ms:
             ts = m.ts.isoformat(timespec="minutes")
             if "COMMIT" in m.acts and m.due:
-                kind = "rescheduled" if prev_due and m.due.due_at != prev_due else "committed"
+                if prev_due is None:
+                    kind, verb = "committed", "set the deadline to"
+                elif m.due.due_at != prev_due:
+                    kind, verb = "rescheduled", "moved the deadline to"
+                else:
+                    # Same date said again -- a restatement, not a new promise.
+                    # Labelling it "committed" makes the trail read as though
+                    # the deadline reset when it did not.
+                    kind, verb = "restated", "restated the deadline as"
                 history.append(HistoryEvent(ts, m.source_id, kind,
-                    f"{name_of(m.speaker)} set the deadline to "
+                    f"{name_of(m.speaker)} {verb} "
                     f"{m.due.due_at:%a %d %b %H:%M} (\"{m.due.phrase}\")"))
                 prev_due = m.due.due_at
             elif "RESCHEDULE" in m.acts and m.due:
