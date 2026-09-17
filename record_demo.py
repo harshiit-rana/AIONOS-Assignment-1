@@ -21,7 +21,7 @@ def smooth_scroll(page, target_y, steps=25, delay=0.03):
 def run():
     print("Starting browser demo recording with Playwright...")
     with sync_playwright() as p:
-        browser = p.chromium.launch(channel="msedge", headless=True)
+        browser = p.chromium.launch(channel="chrome", headless=True)
         context = browser.new_context(
             record_video_dir=str(OUT_DIR),
             record_video_size={"width": 1280, "height": 720},
