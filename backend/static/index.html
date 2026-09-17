@@ -602,82 +602,225 @@ function App() {
           <div style={{ height: '1px', background: 'var(--rule)', margin: '34px 0 0 0' }}></div>
 
           {/* -------------------- SECTION 4: ASK THE RECORD -------------------- */}
-          <section style={{ padding: '30px 0 0 0' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)', paddingBottom: '4px' }}>
-              4 &nbsp;Ask the record
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '52em', paddingBottom: '14px' }}>
-              Ask about your week in plain words. Every answer arrives with the sentences it came from, or with an admission that I cannot answer it.
+          <section style={{
+            margin: '36px 0 20px 0',
+            padding: '28px 32px',
+            background: 'var(--paper2)',
+            border: '1px solid var(--rule)',
+            borderTop: '3px solid var(--cool)',
+            borderRadius: '6px',
+            boxShadow: '0 4px 24px rgba(0,0,0,0.18)'
+          }}>
+            {/* Header with Badges */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px', paddingBottom: '8px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  letterSpacing: '0.14em',
+                  textTransform: 'uppercase',
+                  color: 'var(--cool)'
+                }}>
+                  ✦ &nbsp;4 &nbsp;Ask the record
+                </span>
+                <span style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: '9.5px',
+                  padding: '2px 7px',
+                  borderRadius: '3px',
+                  background: 'rgba(56, 189, 248, 0.12)',
+                  border: '1px solid rgba(56, 189, 248, 0.3)',
+                  color: 'var(--cool)'
+                }}>
+                  GROQ AI POWERED
+                </span>
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)' }}>
+                71 source units · grounded citations
+              </div>
             </div>
 
+            <p style={{
+              margin: '4px 0 18px 0',
+              fontFamily: "'Spectral', Georgia, serif",
+              fontSize: '15.5px',
+              lineHeight: '1.6',
+              color: 'var(--ink2)',
+              maxWidth: '52em'
+            }}>
+              Ask any question about your week in natural language. The agent grounds every sentence in the exact transcript, email or calendar fragments, or gives an honest refusal.
+            </p>
+
+            {/* Elevated Input Bar */}
             <form onSubmit={e => { e.preventDefault(); askQuestion(); }}
-              style={{ display: 'flex', gap: '10px', alignItems: 'center', borderBottom: '1px solid var(--ink3)', paddingBottom: '9px', maxWidth: '48em' }}>
+              style={{
+                display: 'flex',
+                gap: '12px',
+                alignItems: 'center',
+                background: 'var(--paper)',
+                border: '1px solid var(--rule)',
+                borderRadius: '4px',
+                padding: '6px 8px 6px 16px',
+                boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.2)'
+              }}>
+              <span style={{ color: 'var(--cool)', fontSize: '16px' }}>✦</span>
               <input value={q} onChange={e => setQ(e.target.value)}
-                placeholder="What did I promise Raghav?"
-                style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', fontFamily: "'Spectral', Georgia, serif", fontSize: '18px', color: 'var(--ink)' }} />
+                placeholder="Ask e.g. 'What did I promise Raghav?' or 'Who owns the Mumbai lease renewal?'…"
+                style={{
+                  flex: 1,
+                  minWidth: 0,
+                  border: 0,
+                  outline: 'none',
+                  background: 'transparent',
+                  fontFamily: "'Spectral', Georgia, serif",
+                  fontSize: '17px',
+                  color: 'var(--ink)'
+                }} />
               <button type="submit" disabled={asking}
-                style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink3)' }}>
-                {asking ? "Thinking…" : "Ask"}
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  padding: '9px 20px',
+                  background: 'var(--cool)',
+                  color: '#0a0e14',
+                  borderRadius: '3px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  opacity: asking ? 0.6 : 1,
+                  transition: 'opacity 0.2s'
+                }}>
+                {asking ? "Thinking…" : "Ask Agent →"}
               </button>
             </form>
 
-            {/* Suggestions */}
-            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '12px' }}>
-              {[
-                "What did I promise Raghav?",
-                "Who owns the Mumbai lease renewal?",
-                "What am I waiting on?",
-                "What changed since Monday?",
-                "I'm about to walk into board prep — what do I actually need to worry about?"
-              ].map(promptText => (
-                <button key={promptText} onClick={() => askQuestion(promptText)}
-                  style={{
-                    fontFamily: "'IBM Plex Mono', monospace",
-                    fontSize: '10px',
-                    letterSpacing: '0.03em',
-                    color: 'var(--ink3)',
-                    border: '1px solid var(--rule)',
-                    borderRadius: '2px',
-                    padding: '5px 9px'
-                  }}>
-                  {promptText}
-                </button>
-              ))}
+            {/* Suggestion Chips */}
+            <div style={{ paddingTop: '16px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink3)', marginBottom: '8px' }}>
+                Suggested Prompts:
+              </div>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {[
+                  "What did I promise Raghav?",
+                  "Who owns the Mumbai lease renewal?",
+                  "What am I waiting on?",
+                  "What changed since Monday?",
+                  "I'm about to walk into board prep — what do I actually need to worry about?"
+                ].map(promptText => (
+                  <button key={promptText} onClick={() => askQuestion(promptText)}
+                    style={{
+                      fontFamily: "'IBM Plex Mono', monospace",
+                      fontSize: '10.5px',
+                      letterSpacing: '0.02em',
+                      color: 'var(--ink2)',
+                      background: 'var(--paper)',
+                      border: '1px solid var(--rule)',
+                      borderRadius: '3px',
+                      padding: '5px 11px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s'
+                    }}
+                    onMouseOver={e => { e.currentTarget.style.borderColor = 'var(--cool)'; e.currentTarget.style.color = 'var(--ink)'; }}
+                    onMouseOut={e => { e.currentTarget.style.borderColor = 'var(--rule)'; e.currentTarget.style.color = 'var(--ink2)'; }}>
+                    ✦ {promptText}
+                  </button>
+                ))}
+              </div>
             </div>
 
-            {/* Answer Area */}
+            {/* Answer Box */}
             {asked && (
-              <div style={{ paddingTop: '24px' }}>
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingBottom: '6px' }}>
-                  <span style={{ color: asked.res.used_llm ? 'var(--cool)' : 'var(--ink3)' }}>
-                    {asked.res.used_llm ? `● LLM · ${asked.res.path?.split(':')[1] || 'groq'}` : `● RULES`}
-                  </span>
-                  {' · '}{asked.res.latency_ms} ms
-                  {!asked.res.grounded && (
-                    <span style={{ color: 'var(--jeop)', marginLeft: '8px' }}>· ungrounded refusal</span>
-                  )}
+              <div style={{
+                marginTop: '24px',
+                padding: '22px 24px',
+                background: 'var(--paper)',
+                border: '1px solid var(--rule)',
+                borderLeft: `3px solid ${asked.res.grounded ? 'var(--cool)' : 'var(--jeop)'}`,
+                borderRadius: '4px',
+                boxShadow: '0 2px 12px rgba(0,0,0,0.1)'
+              }}>
+                {/* Answer Meta Row */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px', paddingBottom: '12px', borderBottom: '1px solid var(--rule)', marginBottom: '14px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px' }}>
+                    <span style={{
+                      padding: '2px 7px',
+                      borderRadius: '3px',
+                      fontWeight: '600',
+                      letterSpacing: '0.08em',
+                      textTransform: 'uppercase',
+                      background: asked.res.used_llm ? 'rgba(56, 189, 248, 0.15)' : 'var(--paper2)',
+                      color: asked.res.used_llm ? 'var(--cool)' : 'var(--ink3)',
+                      border: `1px solid ${asked.res.used_llm ? 'rgba(56, 189, 248, 0.4)' : 'var(--rule)'}`
+                    }}>
+                      {asked.res.used_llm ? `● LLM · ${asked.res.path?.split(':')[1] || 'groq'}` : `● DETERMINISTIC RULES`}
+                    </span>
+                    <span style={{ color: 'var(--ink3)' }}>
+                      Latency: <strong style={{ color: 'var(--ink)' }}>{asked.res.latency_ms} ms</strong>
+                    </span>
+                  </div>
+
+                  <div>
+                    {asked.res.grounded ? (
+                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--cool)' }}>
+                        ✓ Grounded in real sources
+                      </span>
+                    ) : (
+                      <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--jeop)', fontWeight: '600' }}>
+                        ⚠ Ungrounded · Refused to hallucinate
+                      </span>
+                    )}
+                  </div>
                 </div>
-                <p style={{ margin: '0 0 12px 0', fontSize: '18px', lineHeight: '1.55', color: 'var(--ink)', maxWidth: '48em', textWrap: 'pretty' }}>
+
+                {/* Question Echo */}
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', color: 'var(--ink3)', marginBottom: '10px' }}>
+                  You asked: <strong style={{ color: 'var(--ink)' }}>&ldquo;{asked.question}&rdquo;</strong>
+                </div>
+
+                {/* Answer Text */}
+                <p style={{
+                  margin: '0 0 16px 0',
+                  fontSize: '19px',
+                  lineHeight: '1.6',
+                  color: 'var(--ink)',
+                  textWrap: 'pretty',
+                  fontFamily: "'Spectral', Georgia, serif"
+                }}>
                   {asked.res.answer}
                 </p>
 
-                {/* Citations */}
+                {/* Citations Badges */}
                 {asked.res.citations && asked.res.citations.length > 0 && (
-                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)', paddingTop: '8px' }}>
-                    <span style={{ textTransform: 'uppercase', fontSize: '9.5px' }}>Grounded in {asked.res.citations.length} sources: </span>
+                  <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px', paddingTop: '10px', borderTop: '1px solid var(--rule)' }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em', color: 'var(--ink3)', marginRight: '4px' }}>
+                      Grounded In:
+                    </span>
                     {asked.res.citations.map(c => (
-                      <span key={c} style={{ display: 'inline-block', margin: '0 4px 2px 0', padding: '1px 5px', background: 'var(--paper2)', border: '1px solid var(--rule)', color: 'var(--ink)' }}>
+                      <span key={c} style={{
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: '10px',
+                        padding: '2px 7px',
+                        background: 'var(--paper2)',
+                        border: '1px solid var(--rule)',
+                        color: 'var(--cool)',
+                        borderRadius: '2px'
+                      }}>
                         {c}
                       </span>
                     ))}
                   </div>
                 )}
 
-                {/* Compare toggle */}
+                {/* Compare Toggle */}
                 {asked.res.deterministic_answer && (
-                  <details style={{ marginTop: '10px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)' }}>
-                    <summary style={{ cursor: 'pointer' }}>compare with the deterministic answer</summary>
-                    <p style={{ margin: '6px 0 0 0', paddingLeft: '12px', borderLeft: '1px solid var(--rule)', color: 'var(--ink2)', fontStyle: 'italic' }}>
+                  <details style={{ marginTop: '14px', paddingTop: '10px', borderTop: '1px solid var(--rule)', fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', color: 'var(--ink3)' }}>
+                    <summary style={{ cursor: 'pointer', color: 'var(--ink2)' }}>
+                      Compare with deterministic baseline answer ▾
+                    </summary>
+                    <p style={{ margin: '8px 0 0 0', padding: '8px 12px', background: 'var(--paper2)', borderLeft: '2px solid var(--rule)', color: 'var(--ink2)', fontStyle: 'italic', borderRadius: '2px' }}>
                       {asked.res.deterministic_answer}
                     </p>
                   </details>
@@ -685,6 +828,7 @@ function App() {
               </div>
             )}
           </section>
+
 
           {/* Divider */}
           <div style={{ height: '1px', background: 'var(--rule)', margin: '34px 0 0 0' }}></div>
