@@ -6,7 +6,7 @@
 <title>Executive Productivity Agent — Arjun's Promises</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="/static/vendor/react.js"></script>
 <script src="/static/vendor/react-dom.js"></script>
 <script src="/static/vendor/babel.js"></script>
@@ -57,15 +57,15 @@ a:hover { text-decoration: underline; }
 <div id="root"></div>
 
 <script type="text/babel">
-const { useState, useEffect, useCallback, useRef } = React;
+const { useState, useEffect, useCallback } = React;
 const API = "";
 
 const PRESETS = [
-  { name: "Mon 9am", iso: "2026-09-21T09:05", dayIdx: 0, frac: 0.08 },
+  { name: "Mon 9am", iso: "2026-09-21T09:05", dayIdx: 0, frac: 0.09 },
   { name: "Tue 6pm", iso: "2026-09-22T18:00", dayIdx: 1, frac: 0.35 },
   { name: "Wed noon", iso: "2026-09-23T12:00", dayIdx: 2, frac: 0.50 },
   { name: "Thu 5pm", iso: "2026-09-24T17:00", dayIdx: 3, frac: 0.72 },
-  { name: "Fri 5pm", iso: "2026-09-25T17:00", dayIdx: 4, frac: 0.95 }
+  { name: "Fri 5pm", iso: "2026-09-25T17:00", dayIdx: 4, frac: 0.94 }
 ];
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
@@ -156,562 +156,583 @@ function App() {
   const unownedCount = activeClaims.filter(c => c.direction === 'unowned' || c.owner === 'UNCLEAR').length;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'stretch', minHeight: '100vh', background: 'var(--paper)', color: 'var(--ink)' }}>
-      
-      {/* -------------------- SIDEBAR RAIL -------------------- */}
-      <aside style={{
+    <div style={{
+      display: 'flex',
+      justifyContent: 'center',
+      minHeight: '100vh',
+      background: 'var(--paper)',
+      color: 'var(--ink)',
+      width: '100%'
+    }}>
+      {/* Centered layout container that eliminates empty side gaps */}
+      <div style={{
         display: 'flex',
-        flexDirection: 'column',
-        width: '210px',
-        flex: '0 0 210px',
-        padding: '34px 22px 28px 28px',
-        borderRight: '1px solid var(--rule)',
-        position: 'sticky',
-        top: 0,
-        height: '100vh'
+        flexDirection: 'row',
+        width: '100%',
+        maxWidth: '1240px',
+        minHeight: '100vh',
+        alignItems: 'stretch'
       }}>
-        <div style={{ padding: '0 2px 12px 2px' }}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink)' }}>
-            Standpoint
+        
+        {/* -------------------- SIDEBAR RAIL -------------------- */}
+        <aside style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '230px',
+          flex: '0 0 230px',
+          padding: '34px 22px 28px 24px',
+          borderRight: '1px solid var(--rule)',
+          position: 'sticky',
+          top: 0,
+          height: '100vh'
+        }}>
+          <div style={{ padding: '0 2px 14px 2px' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink)' }}>
+              Standpoint
+            </div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', lineHeight: '1.65', color: 'var(--ink3)', paddingTop: '5px' }}>
+              Select any moment in the week. The page knows only what I had heard by then.
+            </div>
           </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', lineHeight: '1.7', color: 'var(--ink3)', paddingTop: '5px' }}>
-            Select any moment in the week. The page knows only what I had heard by then.
-          </div>
-        </div>
 
-        {/* Vertical Track */}
-        <div style={{ flex: '0 0 auto', padding: '0' }}>
-          <div style={{
-            position: 'relative',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '42vh',
-            minHeight: '260px',
-            background: 'var(--paper2)',
-            border: '1px solid var(--rule)',
-            borderRadius: '2px'
-          }}>
-            {DAYS.map((d, i) => (
-              <div key={d}
-                onClick={() => {
-                  const p = PRESETS.find(pr => pr.dayIdx === i) || PRESETS[i];
-                  if (p) setAsOf(p.iso);
-                }}
-                style={{
-                  position: 'relative',
-                  flex: 1,
-                  borderBottom: i < 4 ? '1px solid var(--rule)' : '0',
-                  padding: '5px 0 0 8px',
-                  cursor: 'pointer'
-                }}>
-                <div style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: '9.5px',
-                  letterSpacing: '0.08em',
-                  color: currentDayIdx === i ? 'var(--ink)' : 'var(--ink3)',
-                  fontWeight: currentDayIdx === i ? '600' : 'normal'
-                }}>
-                  {d}
-                </div>
-                <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--rule)', opacity: 0.55 }}></div>
-              </div>
-            ))}
-
-            {/* Red Marker */}
+          {/* Vertical Track */}
+          <div style={{ flex: '0 0 auto', padding: '0' }}>
             <div style={{
-              position: 'absolute',
-              left: '-1px',
-              right: '-1px',
-              top: `${currentFrac * 100}%`,
-              height: '2px',
-              background: 'var(--jeop)',
-              pointerEvents: 'none'
+              position: 'relative',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '40vh',
+              minHeight: '260px',
+              background: 'var(--paper2)',
+              border: '1px solid var(--rule)',
+              borderRadius: '2px'
             }}>
+              {DAYS.map((d, i) => (
+                <div key={d}
+                  onClick={() => {
+                    const p = PRESETS.find(pr => pr.dayIdx === i) || PRESETS[i];
+                    if (p) setAsOf(p.iso);
+                  }}
+                  style={{
+                    position: 'relative',
+                    flex: 1,
+                    borderBottom: i < 4 ? '1px solid var(--rule)' : '0',
+                    padding: '6px 0 0 10px',
+                    cursor: 'pointer'
+                  }}>
+                  <div style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: '9.5px',
+                    letterSpacing: '0.08em',
+                    color: currentDayIdx === i ? 'var(--ink)' : 'var(--ink3)',
+                    fontWeight: currentDayIdx === i ? '600' : 'normal'
+                  }}>
+                    {d}
+                  </div>
+                  <div style={{ position: 'absolute', left: 0, right: 0, top: '50%', height: '1px', background: 'var(--rule)', opacity: 0.55 }}></div>
+                </div>
+              ))}
+
+              {/* Red Marker */}
               <div style={{
                 position: 'absolute',
-                top: '-3px',
-                left: '-4px',
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                background: 'var(--jeop)'
-              }} />
+                left: '-1px',
+                right: '-1px',
+                top: `${currentFrac * 100}%`,
+                height: '2px',
+                background: 'var(--jeop)',
+                pointerEvents: 'none'
+              }}>
+                <div style={{
+                  position: 'absolute',
+                  top: '-3px',
+                  left: '-4px',
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  background: 'var(--jeop)'
+                }} />
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Current Stamp & Heard Count */}
-        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', color: 'var(--ink)', paddingTop: '12px', letterSpacing: '0.01em' }}>
-          {brief?.as_of_human || "Wednesday 23 Sep, 09:00"}
-        </div>
-        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingTop: '2px' }}>
-          {brief?.fragments_heard || brief?.sources_considered || 44} of {brief?.fragments_total || 71} fragments heard
-        </div>
+          {/* Current Stamp & Heard Count */}
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', color: 'var(--ink)', paddingTop: '12px', letterSpacing: '0.01em', whiteSpace: 'nowrap' }}>
+            {brief?.as_of_short || "Wed 23, 09:00"}
+          </div>
+          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingTop: '2px' }}>
+            {brief?.fragments_heard || brief?.sources_considered || 44} of {brief?.fragments_total || 71} fragments heard
+          </div>
 
-        {/* Preset Quick Buttons */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', paddingTop: '14px' }}>
-          {PRESETS.map(p => (
-            <button key={p.name} onClick={() => setAsOf(p.iso)}
-              style={{
-                fontFamily: "'IBM Plex Mono', monospace",
-                fontSize: '9.5px',
-                letterSpacing: '0.02em',
-                padding: '4px 7px',
-                borderRadius: '2px',
-                border: `1px solid ${asOf === p.iso ? 'var(--ink3)' : 'var(--rule)'}`,
-                color: asOf === p.iso ? 'var(--ink)' : 'var(--ink3)'
-              }}>
-              {p.name}
-            </button>
-          ))}
-        </div>
+          {/* Preset Quick Buttons */}
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', paddingTop: '14px' }}>
+            {PRESETS.map(p => (
+              <button key={p.name} onClick={() => setAsOf(p.iso)}
+                style={{
+                  fontFamily: "'IBM Plex Mono', monospace",
+                  fontSize: '9.5px',
+                  letterSpacing: '0.02em',
+                  padding: '4px 7px',
+                  borderRadius: '2px',
+                  border: `1px solid ${asOf === p.iso ? 'var(--ink3)' : 'var(--rule)'}`,
+                  color: asOf === p.iso ? 'var(--ink)' : 'var(--ink3)'
+                }}>
+                {p.name}
+              </button>
+            ))}
+          </div>
 
-        {/* Health / LLM Status */}
-        <div style={{ paddingTop: '16px' }}>
-          <div style={{
+          {/* Health / LLM Status */}
+          <div style={{ paddingTop: '16px' }}>
+            <div style={{
+              fontFamily: "'IBM Plex Mono', monospace",
+              fontSize: '9.5px',
+              color: health?.llm_enabled ? 'var(--cool)' : 'var(--ink3)',
+              letterSpacing: '0.04em'
+            }}>
+              {health?.llm_enabled ? `● LLM · ${health.provider}` : "● Deterministic Rules"}
+            </div>
+          </div>
+
+          <div style={{ flex: 1 }}></div>
+
+          {/* Theme Toggle */}
+          <button onClick={toggleTheme} style={{
             fontFamily: "'IBM Plex Mono', monospace",
             fontSize: '9.5px',
-            color: health?.llm_enabled ? 'var(--cool)' : 'var(--ink3)',
-            letterSpacing: '0.04em'
+            letterSpacing: '0.12em',
+            textTransform: 'uppercase',
+            color: 'var(--ink3)',
+            padding: '10px 2px 0 2px',
+            textAlign: 'left'
           }}>
-            {health?.llm_enabled ? `● LLM · ${health.provider}` : "● Deterministic Rules"}
-          </div>
-        </div>
+            Theme: {theme}
+          </button>
+        </aside>
 
-        <div style={{ flex: 1 }}></div>
-
-        {/* Theme Toggle */}
-        <button onClick={toggleTheme} style={{
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '9.5px',
-          letterSpacing: '0.12em',
-          textTransform: 'uppercase',
-          color: 'var(--ink3)',
-          padding: '10px 2px 0 2px',
-          textAlign: 'left'
+        {/* -------------------- MAIN CANVAS -------------------- */}
+        <main style={{
+          flex: 1,
+          minWidth: 0,
+          padding: '34px 50px 60px 52px'
         }}>
-          Theme: {theme}
-        </button>
-      </aside>
-
-      {/* -------------------- MAIN CANVAS -------------------- */}
-      <main style={{ flex: 1, minWidth: 0, maxWidth: '840px', padding: '34px 44px 60px 48px' }}>
-        
-        {/* Header */}
-        <header style={{ paddingBottom: '26px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', paddingBottom: '24px' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink3)' }}>
-              Executive Productivity Agent
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.08em', color: 'var(--ink3)' }}>
-              Arjun Malhotra · VP Sales · Week of 21–25 September 2026
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap', paddingBottom: '14px' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
-              1 &nbsp;The standing
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.04em', color: 'var(--ink3)' }}>
-              as of {brief?.as_of_human || "Wednesday 23 Sep, 09:00"} · the only part you have to read
-            </div>
-          </div>
-
-          {/* The 3 large standing sentences */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {brief?.standing && brief.standing.map((s, i) => {
-              const color = s.tone === 'jeop' ? 'var(--jeop)' : s.tone === 'cool' ? 'var(--cool)' : 'var(--ink)';
-              return (
-                <div key={i} style={{
-                  fontSize: '29px',
-                  lineHeight: '1.3',
-                  letterSpacing: '-0.012em',
-                  fontWeight: '400',
-                  maxWidth: '28em',
-                  textWrap: 'pretty',
-                  color: color
-                }}>
-                  {s.text}
-                </div>
-              );
-            })}
-            {(!brief?.standing || brief.standing.length === 0) && (
-              <div style={{ fontSize: '29px', lineHeight: '1.3', color: 'var(--ink)' }}>
-                {brief?.headline || "Loading brief..."}
+          
+          {/* Header */}
+          <header style={{ paddingBottom: '26px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', paddingBottom: '24px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink3)' }}>
+                Executive Productivity Agent
               </div>
-            )}
-          </div>
-
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.7', color: 'var(--ink3)', paddingTop: '18px', maxWidth: '46em' }}>
-            Everything below this is the argument for those lines. The strip of marks under each item is the evidence standing behind it — one mark per sentence, hollow if I had not heard it yet at this moment in the week.
-          </div>
-        </header>
-
-        {/* Divider */}
-        <div style={{ height: '1px', background: 'var(--rule)', margin: '0' }}></div>
-
-        {/* -------------------- SECTION 2: WHAT YOU OWE -------------------- */}
-        <section style={{ paddingTop: '24px', paddingBottom: '30px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', paddingBottom: '4px' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
-              2 &nbsp;What you owe &amp; are blocked on
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.08em', color: 'var(--ink3)' }}>
+                Arjun Malhotra · VP Sales · Week of 21–25 September 2026
+              </div>
             </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.04em', color: 'var(--ink3)' }}>
-              {activeClaims.length} open · {brokenCount} broken · {unownedCount} unowned
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', flexWrap: 'wrap', paddingBottom: '14px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
+                1 &nbsp;The standing
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.04em', color: 'var(--ink3)' }}>
+                as of {brief?.as_of_human || "Wednesday 23 Sep, 09:00"} · the only part you have to read
+              </div>
             </div>
-          </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '46em', paddingBottom: '12px' }}>
-            Ordered by jeopardy, not by date. Click the marks or the source count on any item to read the exact sentences it was built from.
-          </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            {activeClaims.map(c => {
-              const isLate = c.status === 'overdue';
-              const isBlocked = c.direction === 'waiting_on';
-              const isUnowned = c.direction === 'unowned' || c.owner === 'UNCLEAR';
-              const isDueToday = c.status === 'due_today';
-
-              let standingWord = 'upcoming';
-              let mark = 'var(--ink2)';
-              if (isLate) { standingWord = 'promise broken'; mark = 'var(--jeop)'; }
-              else if (isDueToday) { standingWord = 'due now'; mark = 'var(--jeop)'; }
-              else if (isBlocked) { standingWord = 'you are blocked'; mark = 'var(--cool)'; }
-              else if (isUnowned) { standingWord = 'no owner'; mark = 'var(--ink3)'; }
-
-              const isOpen = !!openItems[c.id];
-
-              return (
-                <article key={c.id} style={{
-                  padding: '28px 0 26px 0',
-                  borderBottom: '1px solid var(--rule)',
-                  ...(isUnowned
-                    ? { margin: '14px 0', padding: '24px 20px', border: '1px dashed var(--ink3)', borderRadius: '3px' }
-                    : { borderLeft: `2px solid ${mark}`, paddingLeft: '18px' })
-                }}>
-                  {/* Badges & Meta */}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', flexWrap: 'wrap', paddingBottom: '9px' }}>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: mark }}>
-                      {standingWord}
-                    </div>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink2)', letterSpacing: '0.02em' }}>
-                      {c.due_human || (c.due_at ? c.due_at.replace('T', ' ') : 'no date stated')} {c.lateness ? `· ${c.lateness}` : ''}
-                    </div>
-                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)', letterSpacing: '0.02em' }}>
-                      {isUnowned ? 'needs decision' : c.direction === 'mine' ? `for ${c.counterparty_name || 'counterparty'}` : `from ${c.owner_name}`}
-                    </div>
-                  </div>
-
-                  {/* Headline Line */}
-                  <h2 style={{
-                    margin: 0,
-                    fontWeight: isUnowned ? '400' : '500',
-                    fontSize: '25px',
+            {/* The 3 large standing sentences */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {brief?.standing && brief.standing.map((s, i) => {
+                const color = s.tone === 'jeop' ? 'var(--jeop)' : s.tone === 'cool' ? 'var(--cool)' : 'var(--ink)';
+                return (
+                  <div key={i} style={{
+                    fontSize: '28px',
                     lineHeight: '1.32',
-                    letterSpacing: '-0.005em',
+                    letterSpacing: '-0.012em',
+                    fontWeight: '400',
                     maxWidth: '34em',
                     textWrap: 'pretty',
-                    color: 'var(--ink)'
+                    color: color
                   }}>
-                    {c.title}
-                  </h2>
-
-                  {/* Struck-through Deadline Trail */}
-                  {c.deadline_trail && c.deadline_trail.length > 1 && (
-                    <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '7px', paddingTop: '11px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)' }}>
-                      <span style={{ letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '9.5px' }}>Deadline, as promised:</span>
-                      {c.deadline_trail.map((step, idx) => {
-                        const isLast = idx === c.deadline_trail.length - 1;
-                        return (
-                          <React.Fragment key={idx}>
-                            {idx > 0 && <span>→</span>}
-                            <span style={{
-                              textDecoration: isLast ? 'none' : 'line-through',
-                              color: isLast ? (isLate ? 'var(--jeop)' : 'var(--ink)') : 'var(--ink3)',
-                              fontWeight: isLast ? '600' : 'normal',
-                              borderBottom: isLast ? '1px solid currentColor' : 'none'
-                            }}>
-                              {step}
-                            </span>
-                          </React.Fragment>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* First-person refusal callout for unowned */}
-                  {isUnowned && c.ownership_note && (
-                    <div style={{
-                      marginTop: '14px',
-                      padding: '12px 14px',
-                      border: '1px dashed var(--ink3)',
-                      borderRadius: '2px',
-                      fontSize: '15.5px',
-                      lineHeight: '1.55',
-                      color: 'var(--ink2)',
-                      maxWidth: '44em'
-                    }}>
-                      {c.ownership_note}
-                    </div>
-                  )}
-
-                  {/* Evidence ticks & citation count */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', paddingTop: '15px' }}>
-                    <button onClick={() => toggleItem(c.id)} style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '18px', padding: '0 1px' }} title="Show sentences">
-                      {Array.from({ length: c.evidence?.length || 1 }).map((_, i) => (
-                        <span key={i} style={{
-                          display: 'block',
-                          width: '3px',
-                          borderRadius: '1px',
-                          height: '15px',
-                          background: mark,
-                          border: `1px solid ${mark}`
-                        }}></span>
-                      ))}
-                    </button>
-                    <button onClick={() => toggleItem(c.id)} style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: '10.5px',
-                      color: 'var(--ink2)',
-                      letterSpacing: '0.02em',
-                      borderBottom: '1px solid var(--rule)'
-                    }}>
-                      {c.evidence?.length || 1} sources deduplicated {isOpen ? '▴ hide' : '▾ expand'}
-                    </button>
-                    <div style={{
-                      fontFamily: "'IBM Plex Mono', monospace",
-                      fontSize: '9.5px',
-                      letterSpacing: '0.14em',
-                      textTransform: 'uppercase',
-                      color: c.confidence_word === 'UNSURE' ? 'var(--jeop)' : 'var(--ink3)'
-                    }}>
-                      {c.confidence_word || 'PROBABLE'}
-                    </div>
+                    {s.text}
                   </div>
+                );
+              })}
+              {(!brief?.standing || brief.standing.length === 0) && (
+                <div style={{ fontSize: '28px', lineHeight: '1.3', color: 'var(--ink)' }}>
+                  {brief?.headline || "Loading brief..."}
+                </div>
+              )}
+            </div>
 
-                  {/* Accordion / Expanded Details */}
-                  {isOpen && (
-                    <div style={{ marginTop: '20px', borderTop: '1px solid var(--rule)', paddingTop: '18px' }}>
-                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink3)', paddingBottom: '10px' }}>
-                        Why I think this is one obligation
-                      </div>
-                      <p style={{ margin: '0 0 20px 0', fontSize: '15.5px', lineHeight: '1.6', color: 'var(--ink2)', maxWidth: '44em', textWrap: 'pretty' }}>
-                        Reconciled across {c.evidence?.length || 0} occurrences. The latest authoritative statement supersedes previous dates, maintaining the chronological audit trail.
-                      </p>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.7', color: 'var(--ink3)', paddingTop: '18px', maxWidth: '52em' }}>
+              Everything below this is the argument for those lines. The strip of marks under each item is the evidence standing behind it — one mark per sentence, hollow if I had not heard it yet at this moment in the week.
+            </div>
+          </header>
 
-                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink3)', paddingBottom: '12px' }}>
-                        The sentences this was built from
+          {/* Divider */}
+          <div style={{ height: '1px', background: 'var(--rule)', margin: '0' }}></div>
+
+          {/* -------------------- SECTION 2: WHAT YOU OWE -------------------- */}
+          <section style={{ paddingTop: '24px', paddingBottom: '30px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap', paddingBottom: '4px' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
+                2 &nbsp;What you owe &amp; are blocked on
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', letterSpacing: '0.04em', color: 'var(--ink3)' }}>
+                {activeClaims.length} open · {brokenCount} broken · {unownedCount} unowned
+              </div>
+            </div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '52em', paddingBottom: '12px' }}>
+              Ordered by jeopardy, not by date. Click the marks or the source count on any item to read the exact sentences it was built from.
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+              {activeClaims.map(c => {
+                const isLate = c.status === 'overdue';
+                const isBlocked = c.direction === 'waiting_on';
+                const isUnowned = c.direction === 'unowned' || c.owner === 'UNCLEAR';
+                const isDueToday = c.status === 'due_today';
+
+                let standingWord = 'upcoming';
+                let mark = 'var(--ink2)';
+                if (isLate) { standingWord = 'promise broken'; mark = 'var(--jeop)'; }
+                else if (isDueToday) { standingWord = 'due now'; mark = 'var(--jeop)'; }
+                else if (isBlocked) { standingWord = 'you are blocked'; mark = 'var(--cool)'; }
+                else if (isUnowned) { standingWord = 'no owner'; mark = 'var(--ink3)'; }
+
+                const isOpen = !!openItems[c.id];
+
+                return (
+                  <article key={c.id} style={{
+                    padding: '28px 0 26px 0',
+                    borderBottom: '1px solid var(--rule)',
+                    ...(isUnowned
+                      ? { margin: '14px 0', padding: '24px 20px', border: '1px dashed var(--ink3)', borderRadius: '3px' }
+                      : { borderLeft: `2px solid ${mark}`, paddingLeft: '20px' })
+                  }}>
+                    {/* Badges & Meta */}
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: '14px', flexWrap: 'wrap', paddingBottom: '9px' }}>
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: mark }}>
+                        {standingWord}
                       </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                        {c.evidence && c.evidence.map((e, idx) => (
-                          <div key={e.source_id} style={{ borderLeft: `1px solid var(--rule)`, padding: '0 0 0 16px' }}>
-                            <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingBottom: '5px' }}>
-                              <span style={{ color: 'var(--ink2)' }}>{String(idx + 1).padStart(2, '0')}</span>
-                              <span style={{ letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)' }}>{e.source_id}</span>
-                              <span>{e.label}</span>
-                              <span>{e.ts?.replace('T', ' ')}</span>
-                            </div>
-                            <div style={{ fontSize: '15px', lineHeight: '1.55', color: 'var(--ink)', maxWidth: '44em' }}>
-                              &ldquo;{e.quote}&rdquo;
-                            </div>
-                            {e.acts && e.acts.length > 0 && (
-                              <div style={{ display: 'flex', gap: '4px', paddingTop: '4px' }}>
-                                {e.acts.map(a => (
-                                  <span key={a} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', padding: '1px 5px', background: 'var(--paper2)', border: '1px solid var(--rule)', color: 'var(--ink3)' }}>
-                                    {a}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ))}
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink2)', letterSpacing: '0.02em' }}>
+                        {c.due_human || (c.due_at ? c.due_at.replace('T', ' ') : 'no date stated')} {c.lateness ? `· ${c.lateness}` : ''}
+                      </div>
+                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)', letterSpacing: '0.02em' }}>
+                        {isUnowned ? 'needs decision' : c.direction === 'mine' ? `for ${c.counterparty_name || 'counterparty'}` : `from ${c.owner_name}`}
                       </div>
                     </div>
-                  )}
-                </article>
-              );
-            })}
-          </div>
-        </section>
 
-        {/* Divider */}
-        <div style={{ height: '1px', background: 'var(--rule)', margin: '0' }}></div>
+                    {/* Headline Line */}
+                    <h2 style={{
+                      margin: 0,
+                      fontWeight: isUnowned ? '400' : '500',
+                      fontSize: '24px',
+                      lineHeight: '1.32',
+                      letterSpacing: '-0.005em',
+                      maxWidth: '40em',
+                      textWrap: 'pretty',
+                      color: 'var(--ink)'
+                    }}>
+                      {c.title}
+                    </h2>
 
-        {/* -------------------- SECTION 3: WHAT CLOSED WITHOUT YOU -------------------- */}
-        {closedClaims.length > 0 && (
-          <section style={{ padding: '24px 0 0 0' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)', paddingBottom: '4px' }}>
-              3 &nbsp;What closed without you
-            </div>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '46em', paddingBottom: '12px' }}>
-              Things finished but never manually ticked off. I closed them from delivery and confirmation evidence.
-            </div>
-            <button onClick={() => setShowDone(!showDone)} style={{
-              display: 'flex',
-              alignItems: 'baseline',
-              gap: '10px',
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '10.5px',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: 'var(--ink3)'
-            }}>
-              <span>Closed itself · {closedClaims.length}</span>
-              <span>{showDone ? '−' : '+'}</span>
-            </button>
-
-            {showDone && (
-              <div style={{ paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
-                {closedClaims.map(d => (
-                  <div key={d.id} style={{ borderLeft: '1px solid var(--rule)', padding: '2px 0 2px 16px' }}>
-                    <div style={{ fontSize: '16px', lineHeight: '1.45', color: 'var(--ink2)', textDecoration: 'line-through' }}>
-                      {d.title}
-                    </div>
-                    {d.latest_quote && (
-                      <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.7', color: 'var(--ink3)', paddingTop: '4px' }}>
-                        &ldquo;{d.latest_quote.quote}&rdquo; — {d.latest_quote.who}
+                    {/* Struck-through Deadline Trail */}
+                    {c.deadline_trail && c.deadline_trail.length > 1 && (
+                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '7px', paddingTop: '11px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)' }}>
+                        <span style={{ letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '9.5px' }}>Deadline, as promised:</span>
+                        {c.deadline_trail.map((step, idx) => {
+                          const isLast = idx === c.deadline_trail.length - 1;
+                          return (
+                            <React.Fragment key={idx}>
+                              {idx > 0 && <span>→</span>}
+                              <span style={{
+                                textDecoration: isLast ? 'none' : 'line-through',
+                                color: isLast ? (isLate ? 'var(--jeop)' : 'var(--ink)') : 'var(--ink3)',
+                                fontWeight: isLast ? '600' : 'normal',
+                                borderBottom: isLast ? '1px solid currentColor' : 'none'
+                              }}>
+                                {step}
+                              </span>
+                            </React.Fragment>
+                          );
+                        })}
                       </div>
                     )}
+
+                    {/* First-person refusal callout for unowned */}
+                    {isUnowned && c.ownership_note && (
+                      <div style={{
+                        marginTop: '14px',
+                        padding: '12px 14px',
+                        border: '1px dashed var(--ink3)',
+                        borderRadius: '2px',
+                        fontSize: '15px',
+                        lineHeight: '1.55',
+                        color: 'var(--ink2)',
+                        maxWidth: '48em'
+                      }}>
+                        {c.ownership_note}
+                      </div>
+                    )}
+
+                    {/* Evidence ticks & citation count */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap', paddingTop: '15px' }}>
+                      <button onClick={() => toggleItem(c.id)} style={{ display: 'flex', alignItems: 'flex-end', gap: '2px', height: '18px', padding: '0 1px' }} title="Show sentences">
+                        {Array.from({ length: c.evidence?.length || 1 }).map((_, i) => (
+                          <span key={i} style={{
+                            display: 'block',
+                            width: '3px',
+                            borderRadius: '1px',
+                            height: '15px',
+                            background: mark,
+                            border: `1px solid ${mark}`
+                          }}></span>
+                        ))}
+                      </button>
+                      <button onClick={() => toggleItem(c.id)} style={{
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: '10.5px',
+                        color: 'var(--ink2)',
+                        letterSpacing: '0.02em',
+                        borderBottom: '1px solid var(--rule)'
+                      }}>
+                        {c.evidence?.length || 1} sources deduplicated {isOpen ? '▴ hide' : '▾ expand'}
+                      </button>
+                      <div style={{
+                        fontFamily: "'IBM Plex Mono', monospace",
+                        fontSize: '9.5px',
+                        letterSpacing: '0.14em',
+                        textTransform: 'uppercase',
+                        color: c.confidence_word === 'UNSURE' ? 'var(--jeop)' : 'var(--ink3)'
+                      }}>
+                        {c.confidence_word || 'PROBABLE'}
+                      </div>
+                    </div>
+
+                    {/* Accordion / Expanded Details */}
+                    {isOpen && (
+                      <div style={{ marginTop: '20px', borderTop: '1px solid var(--rule)', paddingTop: '18px' }}>
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink3)', paddingBottom: '10px' }}>
+                          Why I think this is one obligation
+                        </div>
+                        <p style={{ margin: '0 0 20px 0', fontSize: '15px', lineHeight: '1.6', color: 'var(--ink2)', maxWidth: '48em', textWrap: 'pretty' }}>
+                          Reconciled across {c.evidence?.length || 0} occurrences. The latest authoritative statement supersedes previous dates, maintaining the chronological audit trail.
+                        </p>
+
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9.5px', letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--ink3)', paddingBottom: '12px' }}>
+                          The sentences this was built from
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                          {c.evidence && c.evidence.map((e, idx) => (
+                            <div key={e.source_id} style={{ borderLeft: `1px solid var(--rule)`, padding: '0 0 0 16px' }}>
+                              <div style={{ display: 'flex', gap: '10px', alignItems: 'baseline', flexWrap: 'wrap', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingBottom: '5px' }}>
+                                <span style={{ color: 'var(--ink2)' }}>{String(idx + 1).padStart(2, '0')}</span>
+                                <span style={{ letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--ink)' }}>{e.source_id}</span>
+                                <span>{e.label}</span>
+                                <span>{e.ts?.replace('T', ' ')}</span>
+                              </div>
+                              <div style={{ fontSize: '14.5px', lineHeight: '1.55', color: 'var(--ink)', maxWidth: '48em' }}>
+                                &ldquo;{e.quote}&rdquo;
+                              </div>
+                              {e.acts && e.acts.length > 0 && (
+                                <div style={{ display: 'flex', gap: '4px', paddingTop: '4px' }}>
+                                  {e.acts.map(a => (
+                                    <span key={a} style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '9px', padding: '1px 5px', background: 'var(--paper2)', border: '1px solid var(--rule)', color: 'var(--ink3)' }}>
+                                      {a}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </article>
+                );
+              })}
+            </div>
+          </section>
+
+          {/* Divider */}
+          <div style={{ height: '1px', background: 'var(--rule)', margin: '0' }}></div>
+
+          {/* -------------------- SECTION 3: WHAT CLOSED WITHOUT YOU -------------------- */}
+          {closedClaims.length > 0 && (
+            <section style={{ padding: '24px 0 0 0' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)', paddingBottom: '4px' }}>
+                3 &nbsp;What closed without you
+              </div>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '52em', paddingBottom: '12px' }}>
+                Things finished but never manually ticked off. I closed them from delivery and confirmation evidence.
+              </div>
+              <button onClick={() => setShowDone(!showDone)} style={{
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '10px',
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: '10.5px',
+                letterSpacing: '0.1em',
+                textTransform: 'uppercase',
+                color: 'var(--ink3)'
+              }}>
+                <span>Closed itself · {closedClaims.length}</span>
+                <span>{showDone ? '−' : '+'}</span>
+              </button>
+
+              {showDone && (
+                <div style={{ paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                  {closedClaims.map(d => (
+                    <div key={d.id} style={{ borderLeft: '1px solid var(--rule)', padding: '2px 0 2px 16px' }}>
+                      <div style={{ fontSize: '15.5px', lineHeight: '1.45', color: 'var(--ink2)', textDecoration: 'line-through' }}>
+                        {d.title}
+                      </div>
+                      {d.latest_quote && (
+                        <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.7', color: 'var(--ink3)', paddingTop: '4px' }}>
+                          &ldquo;{d.latest_quote.quote}&rdquo; — {d.latest_quote.who}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* Divider */}
+          <div style={{ height: '1px', background: 'var(--rule)', margin: '34px 0 0 0' }}></div>
+
+          {/* -------------------- SECTION 4: ASK THE RECORD -------------------- */}
+          <section style={{ padding: '30px 0 0 0' }}>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)', paddingBottom: '4px' }}>
+              4 &nbsp;Ask the record
+            </div>
+            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '52em', paddingBottom: '14px' }}>
+              Ask about your week in plain words. Every answer arrives with the sentences it came from, or with an admission that I cannot answer it.
+            </div>
+
+            <form onSubmit={e => { e.preventDefault(); askQuestion(); }}
+              style={{ display: 'flex', gap: '10px', alignItems: 'center', borderBottom: '1px solid var(--ink3)', paddingBottom: '9px', maxWidth: '48em' }}>
+              <input value={q} onChange={e => setQ(e.target.value)}
+                placeholder="What did I promise Raghav?"
+                style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', fontFamily: "'Spectral', Georgia, serif", fontSize: '18px', color: 'var(--ink)' }} />
+              <button type="submit" disabled={asking}
+                style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink3)' }}>
+                {asking ? "Thinking…" : "Ask"}
+              </button>
+            </form>
+
+            {/* Suggestions */}
+            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '12px' }}>
+              {[
+                "What did I promise Raghav?",
+                "Who owns the Mumbai lease renewal?",
+                "What am I waiting on?",
+                "What changed since Monday?",
+                "I'm about to walk into board prep — what do I actually need to worry about?"
+              ].map(promptText => (
+                <button key={promptText} onClick={() => askQuestion(promptText)}
+                  style={{
+                    fontFamily: "'IBM Plex Mono', monospace",
+                    fontSize: '10px',
+                    letterSpacing: '0.03em',
+                    color: 'var(--ink3)',
+                    border: '1px solid var(--rule)',
+                    borderRadius: '2px',
+                    padding: '5px 9px'
+                  }}>
+                  {promptText}
+                </button>
+              ))}
+            </div>
+
+            {/* Answer Area */}
+            {asked && (
+              <div style={{ paddingTop: '24px' }}>
+                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingBottom: '6px' }}>
+                  <span style={{ color: asked.res.used_llm ? 'var(--cool)' : 'var(--ink3)' }}>
+                    {asked.res.used_llm ? `● LLM · ${asked.res.path?.split(':')[1] || 'groq'}` : `● RULES`}
+                  </span>
+                  {' · '}{asked.res.latency_ms} ms
+                  {!asked.res.grounded && (
+                    <span style={{ color: 'var(--jeop)', marginLeft: '8px' }}>· ungrounded refusal</span>
+                  )}
+                </div>
+                <p style={{ margin: '0 0 12px 0', fontSize: '18px', lineHeight: '1.55', color: 'var(--ink)', maxWidth: '48em', textWrap: 'pretty' }}>
+                  {asked.res.answer}
+                </p>
+
+                {/* Citations */}
+                {asked.res.citations && asked.res.citations.length > 0 && (
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)', paddingTop: '8px' }}>
+                    <span style={{ textTransform: 'uppercase', fontSize: '9.5px' }}>Grounded in {asked.res.citations.length} sources: </span>
+                    {asked.res.citations.map(c => (
+                      <span key={c} style={{ display: 'inline-block', margin: '0 4px 2px 0', padding: '1px 5px', background: 'var(--paper2)', border: '1px solid var(--rule)', color: 'var(--ink)' }}>
+                        {c}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Compare toggle */}
+                {asked.res.deterministic_answer && (
+                  <details style={{ marginTop: '10px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)' }}>
+                    <summary style={{ cursor: 'pointer' }}>compare with the deterministic answer</summary>
+                    <p style={{ margin: '6px 0 0 0', paddingLeft: '12px', borderLeft: '1px solid var(--rule)', color: 'var(--ink2)', fontStyle: 'italic' }}>
+                      {asked.res.deterministic_answer}
+                    </p>
+                  </details>
+                )}
+              </div>
+            )}
+          </section>
+
+          {/* Divider */}
+          <div style={{ height: '1px', background: 'var(--rule)', margin: '34px 0 0 0' }}></div>
+
+          {/* -------------------- SECTION 5: DATA PACK SOURCES -------------------- */}
+          <section style={{ padding: '26px 0 0 0' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
+                5 &nbsp;Complete data pack ({allSources.length} units)
+              </div>
+              <button onClick={() => setShowSources(!showSources)} style={{
+                fontFamily: "'IBM Plex Mono', monospace",
+                fontSize: '10.5px',
+                color: 'var(--ink3)'
+              }}>
+                {showSources ? '− Hide' : '+ Inspect'}
+              </button>
+            </div>
+
+            {showSources && (
+              <div style={{ paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '420px', overflowY: 'auto' }}>
+                {allSources.map(s => (
+                  <div key={s.id} style={{ borderLeft: '1px solid var(--rule)', padding: '2px 0 2px 12px' }}>
+                    <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)' }}>
+                      <strong style={{ color: 'var(--ink)' }}>{s.id}</strong> · {s.kind} · {s.ts?.replace('T', ' ')} · {s.speaker || s.label}
+                    </div>
+                    <div style={{ fontSize: '13.5px', color: 'var(--ink2)' }}>{s.text}</div>
                   </div>
                 ))}
               </div>
             )}
           </section>
-        )}
 
-        {/* Divider */}
-        <div style={{ height: '1px', background: 'var(--rule)', margin: '34px 0 0 0' }}></div>
+          {/* Footer */}
+          <footer style={{
+            marginTop: '50px',
+            paddingTop: '20px',
+            borderTop: '1px solid var(--rule)',
+            fontFamily: "'IBM Plex Mono', monospace",
+            fontSize: '10.5px',
+            lineHeight: '1.7',
+            color: 'var(--ink3)'
+          }}>
+            The agent reads, it does not act. It will not mark your work done, it will not invent an owner, and it will not give you a number for how sure it is. It gives you the sentences and the word it would use itself. · <a href="/docs" target="_blank" style={{ color: 'var(--cool)' }}>Interactive API (/docs)</a>
+          </footer>
+        </main>
 
-        {/* -------------------- SECTION 4: ASK THE RECORD -------------------- */}
-        <section style={{ padding: '30px 0 0 0' }}>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)', paddingBottom: '4px' }}>
-            4 &nbsp;Ask the record
-          </div>
-          <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', lineHeight: '1.75', color: 'var(--ink3)', maxWidth: '46em', paddingBottom: '14px' }}>
-            Ask about your week in plain words. Every answer arrives with the sentences it came from, or with an admission that I cannot answer it.
-          </div>
-
-          <form onSubmit={e => { e.preventDefault(); askQuestion(); }}
-            style={{ display: 'flex', gap: '10px', alignItems: 'center', borderBottom: '1px solid var(--ink3)', paddingBottom: '9px', maxWidth: '44em' }}>
-            <input value={q} onChange={e => setQ(e.target.value)}
-              placeholder="What did I promise Raghav?"
-              style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', fontFamily: "'Spectral', Georgia, serif", fontSize: '19px', color: 'var(--ink)' }} />
-            <button type="submit" disabled={asking}
-              style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--ink3)' }}>
-              {asking ? "Thinking…" : "Ask"}
-            </button>
-          </form>
-
-          {/* Suggestions */}
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingTop: '12px' }}>
-            {[
-              "What did I promise Raghav?",
-              "Who owns the Mumbai lease renewal?",
-              "What am I waiting on?",
-              "What changed since Monday?",
-              "I'm about to walk into board prep — what do I actually need to worry about?"
-            ].map(promptText => (
-              <button key={promptText} onClick={() => askQuestion(promptText)}
-                style={{
-                  fontFamily: "'IBM Plex Mono', monospace",
-                  fontSize: '10px',
-                  letterSpacing: '0.03em',
-                  color: 'var(--ink3)',
-                  border: '1px solid var(--rule)',
-                  borderRadius: '2px',
-                  padding: '5px 9px'
-                }}>
-                {promptText}
-              </button>
-            ))}
-          </div>
-
-          {/* Answer Area */}
-          {asked && (
-            <div style={{ paddingTop: '24px' }}>
-              <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)', paddingBottom: '6px' }}>
-                <span style={{ color: asked.res.used_llm ? 'var(--cool)' : 'var(--ink3)' }}>
-                  {asked.res.used_llm ? `● LLM · ${asked.res.path?.split(':')[1] || 'groq'}` : `● RULES`}
-                </span>
-                {' · '}{asked.res.latency_ms} ms
-                {!asked.res.grounded && (
-                  <span style={{ color: 'var(--jeop)', marginLeft: '8px' }}>· ungrounded refusal</span>
-                )}
-              </div>
-              <p style={{ margin: '0 0 12px 0', fontSize: '19px', lineHeight: '1.55', color: 'var(--ink)', maxWidth: '42em', textWrap: 'pretty' }}>
-                {asked.res.answer}
-              </p>
-
-              {/* Citations */}
-              {asked.res.citations && asked.res.citations.length > 0 && (
-                <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)', paddingTop: '8px' }}>
-                  <span style={{ textTransform: 'uppercase', fontSize: '9.5px' }}>Grounded in {asked.res.citations.length} sources: </span>
-                  {asked.res.citations.map(c => (
-                    <span key={c} style={{ display: 'inline-block', margin: '0 4px 2px 0', padding: '1px 5px', background: 'var(--paper2)', border: '1px solid var(--rule)', color: 'var(--ink)' }}>
-                      {c}
-                    </span>
-                  ))}
-                </div>
-              )}
-
-              {/* Compare toggle */}
-              {asked.res.deterministic_answer && (
-                <details style={{ marginTop: '10px', fontFamily: "'IBM Plex Mono', monospace", fontSize: '10.5px', color: 'var(--ink3)' }}>
-                  <summary style={{ cursor: 'pointer' }}>compare with the deterministic answer</summary>
-                  <p style={{ margin: '6px 0 0 0', paddingLeft: '12px', borderLeft: '1px solid var(--rule)', color: 'var(--ink2)', fontStyle: 'italic' }}>
-                    {asked.res.deterministic_answer}
-                  </p>
-                </details>
-              )}
-            </div>
-          )}
-        </section>
-
-        {/* Divider */}
-        <div style={{ height: '1px', background: 'var(--rule)', margin: '34px 0 0 0' }}></div>
-
-        {/* -------------------- SECTION 5: DATA PACK SOURCES -------------------- */}
-        <section style={{ padding: '26px 0 0 0' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-            <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '11px', letterSpacing: '0.16em', textTransform: 'uppercase', color: 'var(--ink)' }}>
-              5 &nbsp;Complete data pack ({allSources.length} units)
-            </div>
-            <button onClick={() => setShowSources(!showSources)} style={{
-              fontFamily: "'IBM Plex Mono', monospace",
-              fontSize: '10.5px',
-              color: 'var(--ink3)'
-            }}>
-              {showSources ? '− Hide' : '+ Inspect'}
-            </button>
-          </div>
-
-          {showSources && (
-            <div style={{ paddingTop: '16px', display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '420px', overflowY: 'auto' }}>
-              {allSources.map(s => (
-                <div key={s.id} style={{ borderLeft: '1px solid var(--rule)', padding: '2px 0 2px 12px' }}>
-                  <div style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: '10px', color: 'var(--ink3)' }}>
-                    <strong style={{ color: 'var(--ink)' }}>{s.id}</strong> · {s.kind} · {s.ts?.replace('T', ' ')} · {s.speaker || s.label}
-                  </div>
-                  <div style={{ fontSize: '13.5px', color: 'var(--ink2)' }}>{s.text}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
-
-        {/* Footer */}
-        <footer style={{
-          marginTop: '50px',
-          paddingTop: '20px',
-          borderTop: '1px solid var(--rule)',
-          fontFamily: "'IBM Plex Mono', monospace",
-          fontSize: '10.5px',
-          lineHeight: '1.7',
-          color: 'var(--ink3)'
-        }}>
-          The agent reads, it does not act. It will not mark your work done, it will not invent an owner, and it will not give you a number for how sure it is. It gives you the sentences and the word it would use itself. &middot; <a href="/docs" target="_blank" style={{ color: 'var(--cool)' }}>Interactive API (/docs)</a>
-        </footer>
-      </main>
-
+      </div>
     </div>
   );
 }
