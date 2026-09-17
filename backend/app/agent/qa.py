@@ -163,7 +163,46 @@ def answer(question: str, commitments: list[Commitment], as_of: datetime) -> dic
         "commitments": [c.to_dict() for c in matched],
         "citations": sorted({e.source_id for c in matched for e in c.evidence}),
         "grounded": bool(matched),
+        "used_llm": False,
+        "path": "deterministic",
     }
+
+
+def answer_best(question: str, commitments: list[Commitment], as_of: datetime) -> dict:
+    """Try the LLM, fall back to rules. The deterministic answer is computed
+    either way, so a failure costs nothing but a few milliseconds.
+
+    Citations always come from the resolver's evidence, never from the model --
+    the LLM chooses which commitments are relevant, and the pipeline supplies
+    the sources those commitments were actually built from.
+    """
+    base = answer(question, commitments, as_of)
+
+    try:
+        from app.agent.llm import answer_with_llm
+        out = answer_with_llm(question, commitments, as_of)
+    except Exception:
+        out = None
+
+    if not out:
+        return base
+
+    by_id = {c.id: c for c in commitments}
+    picked = [by_id[i] for i in out["commitment_ids"] if i in by_id]
+    # If the model cited nothing usable, keep the deterministic selection so
+    # the UI still has something to show.
+    chosen = picked or [by_id[c["id"]] for c in base["commitments"] if c["id"] in by_id]
+
+    base.update({
+        "answer": out["answer"],
+        "commitments": [c.to_dict() for c in chosen],
+        "citations": sorted({e.source_id for c in chosen for e in c.evidence}),
+        "grounded": bool(chosen),
+        "used_llm": True,
+        "path": f"llm:{out['provider']}:{out['model']}",
+        "deterministic_answer": base["answer"],   # shown side by side in the UI
+    })
+    return base
 
 
 SUGGESTED = [

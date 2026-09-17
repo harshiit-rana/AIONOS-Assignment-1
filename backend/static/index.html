@@ -192,10 +192,22 @@ function Ask({ asOf, onOpen }) {
             <div className="rounded-xl bg-slate-900/60 ring-1 ring-slate-800 px-4 py-3">
               <div className="flex items-center gap-2 mb-2 text-[10px] uppercase tracking-wider text-slate-500">
                 <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">{entry.res.intent}</span>
+                <span className={`px-1.5 py-0.5 rounded ${entry.res.used_llm?"bg-emerald-500/15 text-emerald-300":"bg-slate-800 text-slate-400"}`}>
+                  {entry.res.used_llm ? `llm · ${entry.res.path.split(":")[1]}` : "rules"}
+                </span>
                 <span>{entry.res.latency_ms} ms</span>
                 {!entry.res.grounded && <span className="text-amber-400">ungrounded — refused to guess</span>}
               </div>
               <p className="text-[14px] text-slate-200 leading-relaxed">{entry.res.answer}</p>
+              {entry.res.deterministic_answer &&
+                <details className="mt-2">
+                  <summary className="text-[11px] text-slate-500 cursor-pointer hover:text-slate-300">
+                    compare with the deterministic answer
+                  </summary>
+                  <p className="mt-1.5 text-[13px] text-slate-400 leading-relaxed border-l-2 border-slate-700 pl-3">
+                    {entry.res.deterministic_answer}
+                  </p>
+                </details>}
               {entry.res.citations.length > 0 &&
                 <div className="mt-2.5 flex flex-wrap gap-1 items-center">
                   <span className="text-[11px] text-slate-500 mr-1">Grounded in:</span>
@@ -284,7 +296,7 @@ function App() {
         <div className="flex items-center gap-2 text-[11px]">
           {health && (
             <span className={`px-2 py-1 rounded-lg ring-1 ${health.llm_enabled?"bg-emerald-500/10 text-emerald-300 ring-emerald-500/25":"bg-slate-800 text-slate-400 ring-slate-700"}`}>
-              {health.llm_enabled ? `LLM · ${health.provider}` : "deterministic mode"}
+              {health.llm_enabled ? `LLM · ${health.provider} (answers only)` : "deterministic"}
             </span>
           )}
           {brief && <span className="px-2 py-1 rounded-lg bg-slate-800 text-slate-400 ring-1 ring-slate-700">{brief.sources_considered} sources · {brief.latency_ms} ms</span>}

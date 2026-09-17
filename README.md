@@ -30,7 +30,7 @@ GROQ_API_KEY=gsk_...
 ```
 
 ```bash
-pytest -q          # 23 tests, all mapped to assignment requirements
+pytest -q          # 27 tests, all mapped to assignment requirements
 ```
 
 ---
@@ -45,7 +45,7 @@ pytest -q          # 23 tests, all mapped to assignment requirements
 | Deduplicate the same action across sources | `agent/resolve.py` — topic clustering |
 | Flag unclear ownership rather than inventing it | `agent/resolve.py` — `UNCLEAR` + escalation |
 | Produce a daily brief | `agent/brief.py` |
-| Answer questions | `agent/qa.py` |
+| Answer questions | `agent/qa.py` (+ optional `agent/llm.py`) |
 
 ---
 
@@ -65,7 +65,7 @@ pytest -q          # 23 tests, all mapped to assignment requirements
                     └──────────────────────┬──────────────────────┘
                                            │  71 units
                     ┌──────────────────────▼──────────────────────┐
-   2. EXTRACT       │  extract.py          ⇄  llm.py (optional)    │
+   2. EXTRACT       │  extract.py   (deterministic, always)        │
                     │  • topic lexicon, weighted                   │
                     │  • topic carries forward across turns        │
                     │  • speech acts: COMMIT / REQUEST / DELIVER   │
@@ -88,6 +88,9 @@ pytest -q          # 23 tests, all mapped to assignment requirements
                     ┌──────────────────────▼──────────────────────┐
    4. SERVE         │  brief.py   ranked daily brief               │
                     │  qa.py      grounded Q&A + citations         │
+                    │  llm.py     OPTIONAL: phrases the answer by  │
+                    │             selecting from resolved items;   │
+                    │             ids validated, always fallible   │
                     │  db.py      SQLite: sources, runs, audit_log │
                     └──────────────────────┬──────────────────────┘
                                            │
@@ -99,11 +102,16 @@ pytest -q          # 23 tests, all mapped to assignment requirements
 ```
 
 **The design rule: the LLM reads, the rules decide.**
-Extraction is the fuzzy, language-shaped problem and can be done by an LLM.
 Dedup, supersession, overdue arithmetic and ownership are decided by
-deterministic code, so the brief is reproducible, auditable, and identical on
-every run. An executive tool that reorders your day differently each time you
-refresh is not trustworthy.
+deterministic code, so the brief is reproducible, auditable and identical on
+every run. An executive tool that reorders your day each time you refresh is
+not trustworthy.
+
+Concretely, in the build as it stands: **extraction is deterministic in every
+mode**, and the LLM — when a key is configured — only phrases the answer to a
+free-form question by selecting among commitments the resolver already
+produced. It cannot create, re-own or re-date one. That boundary is enforced
+by a validation gate, not by prompt wording, and is covered by four tests.
 
 ---
 
@@ -196,7 +204,7 @@ multi-user support. The data pack is the system of record.
 | Tool | How it was used |
 |---|---|
 | **Claude Opus 5 (Claude Code)** | Primary development environment. Used to read and parse the assignment PDFs, design the ingest → extract → resolve architecture, write the agent pipeline, API, React UI and test suite, and debug. Two real bugs it caught and fixed mid-build are documented below. |
-| **Groq API** (`llama-3.3-70b-versatile`) | Optional LLM path for extraction and free-form Q&A, behind a provider-agnostic interface. Off by default; the deterministic path is the reference implementation. |
+| **Groq API** (`llama-3.3-70b-versatile`) | Optional LLM path for **free-form question answering only** (`agent/llm.py`), behind a provider-agnostic interface (Groq / OpenAI / Anthropic). Off by default. The model selects among already-resolved commitments and cannot invent one — ids it returns are validated against the resolved set and unknown ids are dropped. Any failure (no key, bad key, rate limit, timeout, bad JSON) falls back to the deterministic answer. |
 | **FastAPI auto-generated OpenAPI** | Swagger docs at `/docs`, used to exercise endpoints during development. |
 
 **How AI was actually used — honestly:** the architecture decisions (deterministic
@@ -252,6 +260,7 @@ backend/
       ingest.py        4 formats → one SourceUnit stream
       dates.py         relative-date resolution
       extract.py       speech-act extraction (deterministic)
+      llm.py           optional LLM answering, validated + always fallible
       resolve.py       dedup, supersession, ownership, status
       brief.py         ranked daily brief
       qa.py            grounded question answering
@@ -267,8 +276,14 @@ backend/
 - The topic lexicon is tuned to this data pack. A new domain needs new anchors,
   or the LLM extraction path enabled — the resolution layer is unchanged either
   way.
-- The LLM path selects from resolved commitments; it does not yet re-extract
-  with structured output validation against the deterministic result.
+- **The LLM is used for answering only, not for extraction.** `llm.py` is
+  given the commitments the resolver already produced and selects among them;
+  it cannot create one. Extraction, dedup, supersession, ownership and status
+  are deterministic in every mode — `/api/health` reports exactly this under
+  `llm_used_for` and `always_deterministic`, and each answer carries
+  `used_llm` and `path` so the UI can never claim a model answered when it
+  did not. Re-extraction via LLM with structured-output validation against the
+  deterministic result is the next step, not a current claim.
 - The React SPA is served from a single file with vendored libraries rather
   than a Vite/Next.js build. This was a deliberate trade for a hard deadline:
   it removes any build step that could fail, and the app runs with no network.

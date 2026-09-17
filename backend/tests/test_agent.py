@@ -179,3 +179,49 @@ def test_refuses_questions_outside_the_data_pack():
 ])
 def test_qa_never_crashes(question):
     assert answer(question, brief_at(THU), THU)["answer"]
+
+
+# --- The optional LLM layer must never be able to break the demo -----------
+def test_without_a_key_the_answer_is_deterministic_and_says_so():
+    from app.agent.qa import answer_best
+    r = answer_best("What did I promise Raghav?", brief_at(WED), WED)
+    assert r["used_llm"] is False
+    assert r["path"] == "deterministic"
+    assert "vendor list" in r["answer"].lower()
+
+
+def test_llm_failure_falls_back_silently(monkeypatch):
+    """A dead key, a rate limit or an offline laptop must cost nothing."""
+    import app.agent.llm as llm
+
+    def boom(*a, **k):
+        raise RuntimeError("provider exploded")
+
+    monkeypatch.setattr(llm, "answer_with_llm", boom)
+    from app.agent.qa import answer_best
+    r = answer_best("What needs action today?", brief_at(WED), WED)
+    assert r["used_llm"] is False
+    assert r["answer"]
+
+
+def test_hallucinated_commitment_ids_are_dropped(monkeypatch):
+    """The validation gate is what stops an invented item reaching the user."""
+    import app.agent.qa as qa
+
+    monkeypatch.setattr(
+        "app.agent.llm.answer_with_llm",
+        lambda q, c, a: {"answer": "Made up.",
+                         "commitment_ids": ["vendor_list", "TOTALLY_INVENTED"],
+                         "provider": "groq", "model": "test"})
+    r = qa.answer_best("anything", brief_at(WED), WED)
+    ids = [c["id"] for c in r["commitments"]]
+    assert "TOTALLY_INVENTED" not in ids
+    assert ids == ["vendor_list"]
+
+
+def test_llm_cannot_invent_citations():
+    """Citations come from the resolver's evidence, never from the model."""
+    import app.agent.qa as qa
+    real = {e.source_id for c in brief_at(WED) for e in c.evidence}
+    r = qa.answer_best("What did I promise Raghav?", brief_at(WED), WED)
+    assert set(r["citations"]) <= real

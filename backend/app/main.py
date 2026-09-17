@@ -19,7 +19,7 @@ from pydantic import BaseModel, Field
 from app.agent.brief import build_brief
 from app.agent.extract import extract_mentions
 from app.agent.ingest import load_people, load_sources, sources_upto
-from app.agent.qa import SUGGESTED, answer
+from app.agent.qa import SUGGESTED, answer_best
 from app.agent.resolve import resolve_commitments
 from app.config import (DEFAULT_AS_OF, WEEK_END, WEEK_START, active_provider,
                         llm_enabled, mode)
@@ -73,6 +73,12 @@ def health() -> dict:
         "llm_enabled": llm_enabled(),
         "provider": p["name"] if p else None,
         "model": p["model"] if p else None,
+        # Be exact about what a configured key actually changes. The brief is
+        # deterministic in every mode by design, so a green "LLM" badge must
+        # never imply the ranking or the deadlines came from a model.
+        "llm_used_for": ["ask"] if llm_enabled() else [],
+        "always_deterministic": ["brief", "commitments", "dedup",
+                                 "supersession", "ownership", "status"],
         "week": {"start": WEEK_START, "end": WEEK_END},
         "default_as_of": DEFAULT_AS_OF,
     }
@@ -118,7 +124,7 @@ def ask(body: AskBody) -> dict:
     t0 = time.perf_counter()
     dt = _parse_as_of(body.as_of)
     _, commitments = _pipeline(dt)
-    res = answer(body.question, commitments, dt)
+    res = answer_best(body.question, commitments, dt)
     ms = (time.perf_counter() - t0) * 1000
     res["mode"] = mode()
     res["latency_ms"] = round(ms, 1)

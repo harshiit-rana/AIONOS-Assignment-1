@@ -130,7 +130,7 @@ text(s, Inches(0.95), Inches(3.35), Inches(10.6), Inches(1.0),
 
 for i, (n, lab, col) in enumerate([
         ("71", "source units", CYAN), ("5", "real commitments", INDIGO),
-        ("7→1", "dedup ratio", EMERALD), ("23", "tests passing", AMBER)]):
+        ("7→1", "dedup ratio", EMERALD), ("27", "tests passing", AMBER)]):
     x = Inches(0.95 + i * 2.35)
     box(s, x, Inches(4.5), Inches(2.05), Inches(1.0), fill=CARD)
     text(s, x, Inches(4.63), Inches(2.05), Inches(0.4), [(n, 21, col, True)], align=PP_ALIGN.CENTER)
@@ -330,9 +330,9 @@ title(s, "AI tools used", "What each tool did, and what it actually caught")
 
 tools = [
     ("Claude Opus 5  (Claude Code)", "Primary build environment",
-     "Parsed the assignment PDFs and reconstructed three garbled calendar tables; designed the ingest → extract → resolve architecture; wrote the pipeline, REST API, React SPA and the 23-test suite; debugged.", INDIGO),
+     "Parsed the assignment PDFs and reconstructed three garbled calendar tables; designed the ingest → extract → resolve architecture; wrote the pipeline, REST API, React SPA and the 27-test suite; debugged.", INDIGO),
     ("Groq API — llama-3.3-70b-versatile", "Optional LLM path",
-     "Extraction and free-form Q&A behind a provider-agnostic interface (Groq / OpenAI / Anthropic). Off by default: the deterministic path is the reference implementation and the demo cannot be broken by a missing key.", AMBER),
+     "Free-form question answering only, behind a provider-agnostic interface (Groq / OpenAI / Anthropic). The model selects among already-resolved commitments and cannot invent one — returned ids are validated and unknown ids dropped. Off by default; any failure falls back to the deterministic answer.", AMBER),
     ("FastAPI OpenAPI / Swagger", "Auto-generated API surface",
      "Interactive docs at /docs, used to exercise every endpoint during development.", CYAN),
 ]
@@ -378,7 +378,7 @@ for i, (req, impl, ev) in enumerate(table):
     text(s, Inches(6.6), y2 + Inches(0.03), Inches(2.8), Inches(0.35), [(impl, 10, MUTED, False, MONO)])
     text(s, Inches(9.5), y2 + Inches(0.03), Inches(3.0), Inches(0.35), [(ev, 10, EMERALD, False)])
 
-for i, (n, lab, col) in enumerate([("23", "tests passing", EMERALD), ("0.2s", "full suite", CYAN),
+for i, (n, lab, col) in enumerate([("27", "tests passing", EMERALD), ("0.2s", "full suite", CYAN),
                                    ("~7ms", "brief latency", AMBER), ("0", "API keys required", INDIGO)]):
     x = Inches(0.75 + i * 3.0)
     box(s, x, Inches(6.25), Inches(2.75), Inches(0.85), fill=CARD2)
@@ -392,8 +392,8 @@ title(s, "Limitations & next", "What I would build next, and what I would not cl
 left = [
     ("The topic lexicon is tuned to this data pack",
      "A new domain needs new anchors, or the LLM extraction path switched on. The resolution layer — where the real judgement lives — is unchanged either way."),
-    ("The LLM path selects, it does not yet re-extract",
-     "Next: structured-output extraction validated against the deterministic result, with disagreements surfaced rather than silently preferred."),
+    ("The LLM answers, it does not extract",
+     "Extraction is deterministic in every mode. The model only phrases replies by selecting among resolved commitments, with ids validated. Next: LLM extraction cross-checked against the deterministic result, disagreements surfaced not hidden."),
     ("Single-file React SPA, not a Vite/Next.js build",
      "A deliberate trade against a hard deadline: no build step that can fail, and the app runs with no network at all."),
 ]

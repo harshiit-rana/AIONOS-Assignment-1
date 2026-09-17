@@ -68,7 +68,7 @@ Then ask something outside the pack — *"What's our Q4 revenue forecast?"*
 **7 · Under the hood (25s)** — Sources tab, then `/docs`.
 > "Every source is queryable, and it's a real REST API — brief, ask,
 > commitments, sources, and an audit log that records every question with the
-> sources that grounded it. FastAPI, SQLite, React. 23 tests."
+> sources that grounded it. FastAPI, SQLite, React. 27 tests."
 
 Close on: *"The design rule is — the LLM reads, the rules decide."*
 
@@ -77,19 +77,34 @@ Close on: *"The design rule is — the LLM reads, the rules decide."*
 ## Defending it
 
 **"Why not just use an LLM for everything?"**
-Extraction is language-shaped — an LLM is good at it. But dedup, supersession,
+Extraction is language-shaped and an LLM is good at it. But dedup, supersession,
 overdue arithmetic and ownership are decisions, and they must be identical on
 every run. An executive tool that reorders your day each time you refresh is
 not trustworthy. So the LLM reads and the rules decide. It also means the demo
 runs with no API key.
 
-**"So is there actually any AI in it?"**
-Yes — the extraction layer is provider-agnostic (Groq, OpenAI, Anthropic) and
-turns on with one env var. I built the deterministic path first deliberately:
-it's the reference implementation the LLM path is validated against, and it
-makes the system testable. Be straight about this: with the key off, the
-intelligence is in the speech-act model and the resolution rules, not in a
-model call.
+**"So is there actually any AI in it?"**  ← *answer this precisely*
+Be exact, because the honest answer is the stronger one:
+
+> "Extraction is deterministic in every mode — that's deliberate. The LLM
+> layer is provider-agnostic and turns on with one env var, and it does one
+> job: phrasing the answer to a free-form question by *selecting* among
+> commitments the resolver already produced. It can't create one, re-own one
+> or re-date one — the ids it returns are validated against the resolved set
+> and unknown ids are dropped. Four tests cover that gate, including one that
+> feeds it a hallucinated id."
+
+Then point at the badge on the answer: it says `rules` or `llm · groq` per
+answer, not per config. And `/api/health` lists `always_deterministic` —
+brief, dedup, supersession, ownership, status — so nothing can imply a model
+ranked the day.
+
+**"Why did you make extraction deterministic rather than LLM?"**
+Reproducibility and testability. I can assert that the vendor list slipped
+exactly three times; you can't write that test against a model call. The
+resolver is the part with the judgement in it, and I wanted it provable. The
+LLM extraction path is the next step, cross-checked against the deterministic
+result rather than replacing it.
 
 **"How does dedup actually work?"**
 A weighted topic lexicon, plus two things that matter on real dialogue: topic
